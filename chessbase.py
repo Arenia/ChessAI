@@ -28,7 +28,12 @@ class Board:
         else
             return false
 
-class Opponent(Board):
+    def move_piece(self, spot):
+        #Moves a piece from the coordinates given in a turn. Overwrites the target location, piece removal handled by Player classes.
+        self.boardstate[spot[1][0]][spot[1][1]] = self.boardstate[spot[0][0]][spot[0][1]]
+        self.boardstate[spot[0][0]][spot[0][1]] = ""
+
+class Opponent(Board, Pawn, Bishop, Knight, Rook, King, Queen):
     #Class for the opponent/AI, black.
     def __init__(self):
         #Define list for pieces on the side, as well as a counter of total pieces on the board.
@@ -58,15 +63,21 @@ class Opponent(Board):
         #Initialize Queen
         self.pieces.append(Queen(3,7, false))
 
+    def find_king(self):
+        for x in range(self.pieces.size()):
+            if self.pieces[x].name.lower() == "k"
+                return x
+
     def remove_piece(self, ind):
         self.pieces.remove(ind)
+        self.pieceCount = self.pieceCount-1
 
     def inattackrange(self, tar_x, tar_y, field):
         #check for checkmate
         result = false
         for piece in self.pieces:
             #Assume space to attack is owned for the sake of check
-            if piece.move_attempt(x,y,owned):
+            if piece.move_attempt(x,y,field):
                 result = true
                 break
         return result
@@ -85,9 +96,8 @@ class Opponent(Board):
                 if arange[x][y] == true:
                     continue
                 else:
-                    owned = occupation(x,y,false)
                     for piece in self.pieces:
-                        if piece.move_attempt(x,y,owned):
+                        if piece.move_attempt(x,y,field):
                             arange[x][y] = true
                             break
 
@@ -106,8 +116,7 @@ class Opponent(Board):
             if sel_index != -1:
                 tar_x = input("Input the x coordinate to move to: ")
                 tar_y = input("Input the y coordinate to move to: ")
-                occupied = field.occupation(tar_x, tar_y)
-                if move_attempt(tar_x, tar_y, occupied):
+                if move_attempt(tar_x, tar_y, field):
                     field.move_piece(sel_x, tar_x, sel_y, tar_y)
                     return occupied
                 else:
@@ -118,7 +127,7 @@ class Opponent(Board):
 
 
 
-class Player(Board):
+class Player(Board, Pawn, Bishop, Knight, Rook, King, Queen):
     #class for the Player side, white.
     def __init__(self):
         #Define list for pieces on the side, as well as a counter of total pieces on the board.
@@ -148,12 +157,23 @@ class Player(Board):
         #Initialize Queen
         pieces.append(Queen(3,0, true))
 
+    def remove_piece(self, ind):
+        self.pieces.remove(ind)
+        self.pieces.pieceCount = self.pieces.pieceCount-1
+
+    def find_king(self):
+        target = [0,0]
+        for x in range(self.pieces.size()):
+            if self.pieces[x].name.lower() == "k":
+                target = [self.pieces[x].xpos, self.pieces[x].ypos]
+                return target
+
     def inattackrange(self, tar_x, tar_y, field):
         #check for checkmate
         result = false
         for piece in self.pieces:
             #Assume space to attack is owned for the sake of check
-            if piece.move_attempt(x,y,true):
+            if piece.move_attempt(x,y,field):
                 result = true
                 break
         return result
@@ -173,7 +193,7 @@ class Player(Board):
                 else:
                     owned = occupation(x,y,true)
                     for piece in self.pieces:
-                        if piece.move_attempt(x,y,owned):
+                        if piece.move_attempt(x,y,field):
                             arange[x][y] = true
                             break
         return arange
@@ -192,9 +212,10 @@ class Player(Board):
                 tar_x = input("Input the x coordinate to move to: ")
                 tar_y = input("Input the y coordinate to move to: ")
                 occupied = field.occupation(tar_x, tar_y)
-                if move_attempt(tar_x, tar_y, occupied):
-                    field.move_piece(sel_x, tar_x, sel_y, tar_y)
-                    return occupied
+                if move_attempt(tar_x, tar_y, field):
+                    coordinates = [[sel_x, sel_y][tar_x, tar_y]]
+                    self.pieces[sel_index].act_move(tar_x, tar_y)
+                    return coordinates
                 else:
                     print("You can't move there!")
             else:
@@ -217,13 +238,62 @@ class Game(Player, Opponent, Board):
         for piece in self.black.pieces:
             self.boardstate[piece.xpos][piece.ypos] = piece.name
 
-    def play_game
-        #to fill later
-        pass
-
-
-
-
+    def play_game(self):
+        while true:
+            #Engage Player turn
+            spot = self.white.turn(self.field)
+            #Check for piece taken
+            for ind in range(self.black.pieces):
+                if (self.black.pieces[ind].xpos == spot[1][0] and self.black.pieces[ind].ypos == spot[1][1]):
+                    self.field.move_piece(spot)
+                    self.black.remove_piece(ind)
+                    break
+            #Check for check
+            b_loc = self.black.find_king()
+            if self.white.inattackrange(b_loc[0], b_loc[1], field):
+                print("Black king in check!")
+                escape = false
+                for x in range(-1,2):
+                    for y in range(-1,2):
+                        if x == 0 and y == 0:
+                            continue
+                        else:
+                            if not self.white.inattackrange(b_loc[0]+x, b_loc[1]+y, field):
+                                escape = true
+                                break
+                    if escape:
+                        break
+                if not escape:
+                    print("Game over! White wins.")
+                    return 0
+            #Engage Opponent turn
+            spot = self.black.turn(self.field)
+            #Check for piece taken
+            for ind in range(self.white.pieces):
+                if (self.white.pieces[ind].xpos == spot[1][0] and self.white.pieces[ind].ypos == spot[1][1]):
+                    self.field.move_piece(spot)
+                    self.white.remove_piece(ind)
+                    break
+            #Check for check
+            w_loc = self.white.find_king()
+            if self.black.inattackrange(b_loc[0], b_loc[1], field):
+                print("White king in check!")
+                escape = false
+                for x in range(-1,2):
+                    for y in range(-1,2):
+                        if x == 0 and y == 0:
+                            continue
+                        else:
+                            if not self.black.inattackrange(b_loc[0]+x, b_loc[1]+y, field):
+                                escape = true
+                                break
+                    if escape:
+                        break
+                if not escape:
+                    print("Game over! Black wins.")
+                    return 0
+        print("You shouldn't be here.")
+        return 0
 
 class ChessPiece:
     #Basic methods for all pieces.
@@ -246,7 +316,7 @@ class King(ChessPiece):
             self.name = "k"
 
 
-    def move_attempt(self, tar_xpos, tar_ypos, occupied):
+    def move_attempt(self, tar_xpos, tar_ypos, field):
         x_dis = abs(self.xpos - tar_xpos)
         y_dis = abs(self.ypos - tar_ypos)
         if (x_dis == 0 and y_dis == 1) or (y_dis == 0 and x_dis == 1) or (y_dis == 1 and x_dis == 1):
@@ -264,11 +334,50 @@ class Rook(ChessPiece):
         else:
             self.name = "r"
 
-    def move_attempt(self, tar_xpos, tar_ypos, occupied):
+    def move_attempt(self, tar_xpos, tar_ypos, field):
+        #Negative distance means targeting to the up-left
+        #Positive distance is to the bot-right
         x_dis = self.xpos - tar_xpos
         y_dis = self.ypos - tar_ypos
-        if (x_dis == 0 and y_dis != 0) or (y_dis == 0 and x_dis != 0):
-            return true
+        if (x_dis == 0 and y_dis != 0):
+            block = false
+            if (y_dis > 0):
+                #Aim down
+                for y in range(0,y_dis):
+                    if (len(field[self.xpos][(y-self.ypos)]) != 0):
+                        block = true
+                if block:
+                    return false
+                else:
+                    return true
+            else:
+                #Aim up
+                for y in range(0,abs(y_dis)):
+                    if (len(field[self.xpos][(self.ypos-y)]) != 0):
+                        block = true
+                if block:
+                    return false
+                else:
+                    return true
+        elif (y_dis == 0 and x_dis != 0):
+            block = false
+            if (x_dis > 0):
+                for x in range(0,x_dis):
+                    if (len(field[(x-self.xpos)][self.ypos]) != 0):
+                        block = true
+                if block:
+                    return false
+                else:
+                    return true
+            else:
+                #Aim up
+                for x in range(0,abs(x_dis)):
+                    if (len(field[(x-self.xpos)][self.ypos]) != 0):
+                        block = true
+                if block:
+                    return false
+                else:
+                    return true
         else:
             return false
 
@@ -282,7 +391,7 @@ class Knight(ChessPiece):
         else:
             self.name = "n"
 
-    def move_attempt(self, tar_xpos, tar_ypos, occupied):
+    def move_attempt(self, tar_xpos, tar_ypos, field):
         x_dis = abs(self.xpos - tar_xpos)
         y_dis = abs(self.ypos - tar_ypos)
         if (x_dis == 1 and y_dis == 2) or (x_dis == 2 and y_dis == 1):
@@ -300,11 +409,30 @@ class Bishop(ChessPiece):
         else:
             self.name = "b"
 
-    def move_attempt(self, tar_xpos, tar_ypos, occupied):
+    def move_attempt(self, tar_xpos, tar_ypos, field):
         x_dis = self.xpos - tar_xpos
         y_dis = self.ypos - tar_ypos
         if (x_dis == y_dis):
-            return true
+            block = false
+            #Either x or y works, both funcion
+            if (x_dis > 0):
+                for x in range(0,x_dis):
+                    if (len(field[(x-self.xpos)][x-self.ypos]) != 0):
+                        block = true
+                if block:
+                    return false
+                else:
+                    return true
+                return true
+            else:
+                for x in range(0,abs(x_dis)):
+                    if (len(field[(self.xpos-x)][self.ypos-x]) != 0):
+                        block = true
+                if block:
+                    return false
+                else:
+                    return true
+                return true
         else:
             return false
 
@@ -318,8 +446,8 @@ class Queen(ChessPiece, Bishop, Rook):
         else:
             self.name = "q"
 
-    def move_attempt(self, tar_xpos, tar_ypos, occupied):
-        if Rook.move_attempt(self, tar_xpos, tar_ypos) or Bishop.move_attempt(self, tar_xpos, tar_ypos):
+    def move_attempt(self, tar_xpos, tar_ypos, field):
+        if Rook.move_attempt(self, tar_xpos, tar_ypos, field) or Bishop.move_attempt(self, tar_xpos, tar_ypos, field):
             return true
         else:
             return false
@@ -335,11 +463,11 @@ class BlackPawn(ChessPiece):
             self.name = "p"
 
 
-    def move_attempt(self, tar_xpos, tar_ypos, occupied):
+    def move_attempt(self, tar_xpos, tar_ypos, field):
         if (self.ypos == tar_ypos-1):
             if (self.xpos == tar_xpos):
                 return true
-            elif (((self.xpos == tar_xpos+1) or (self.xpos == tar_xpos-1)) and occupied):
+            elif (((self.xpos == tar_xpos+1) or (self.xpos == tar_xpos-1)) and (len(field[tar_xpos][tar_ypos]) != 0):
                 return true
         else
             return false
@@ -354,11 +482,11 @@ class WhitePawn(ChessPiece):
         else:
             self.name = "p"
 
-    def move_attempt(self, tar_xpos, tar_ypos, occupied):
+    def move_attempt(self, tar_xpos, tar_ypos, field):
         if (self.ypos == tar_ypos+1):
             if (self.xpos == tar_xpos):
                 return true
-            elif (((self.xpos == tar_xpos+1) or (self.xpos == tar_xpos-1)) and occupied):
+            elif (((self.xpos == tar_xpos+1) or (self.xpos == tar_xpos-1)) and (len(field[tar_xpos][tar_ypos]) != 0)):
                 return true
         else
             return false
