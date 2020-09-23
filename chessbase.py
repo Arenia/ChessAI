@@ -653,6 +653,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                 #Piece to use, random from the available attackers
                 ptu = random.choice(attack_list)
                 coordinates = [[self.pieces[ptu].xpos, self.pieces[ptu].ypos], [target[0][0], target[0][1]]]
+                print(f'Moving from ({self.pieces[ptu].xpos}, {self.pieces[ptu].ypos}) to ({target[0][0]}, {target[0][1]}).')
                 self.pieces[ptu].act_move(tar_x, tar_y)
                 return coordinates
         #Queen out of range, try to attack rook
@@ -667,6 +668,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     #Piece to use, random from the available attackers
                     ptu = random.choice(attack_list)
                     coordinates = [[self.pieces[ptu].xpos, self.pieces[ptu].ypos], [target[x][0], target[x][1]]]
+                    print(f'Moving from ({self.pieces[ptu].xpos}, {self.pieces[ptu].ypos}) to ({target[0][0]}, {target[0][1]}).')
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No rooks, sample both bishops and knights at the same time
@@ -682,6 +684,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     #Piece to use, random from the available attackers
                     ptu = random.choice(attack_list)
                     coordinates = [[self.pieces[ptu].xpos, self.pieces[ptu].ypos], [target[x][0], target[x][1]]]
+                    print(f'Moving from ({self.pieces[ptu].xpos}, {self.pieces[ptu].ypos}) to ({target[0][0]}, {target[0][1]}).')
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No knights or bishops, pawns
@@ -696,6 +699,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     #Piece to use, random from the available attackers
                     ptu = random.choice(attack_list)
                     coordinates = [[self.pieces[ptu].xpos, self.pieces[ptu].ypos], [target[x][0], target[x][1]]]
+                    print(f'Moving from ({self.pieces[ptu].xpos}, {self.pieces[ptu].ypos}) to ({target[0][0]}, {target[0][1]}).')
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No pawns, try and check king
@@ -717,6 +721,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                             #farside and nearside match, valid move
                             coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
                             self.pieces[i].act_move(farside[x][0], farside[x][1])
+                            print(f'Moving from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[0][0]}, {farside[0][1]}).')
                             return coordinates
         #Falling through loop assumes unable to check king, check queen
         target = field.find_piece("Q")
@@ -735,6 +740,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                         if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
                             #farside and nearside match, valid move
                             coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                            print(f'Moving from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[0][0]}, {farside[0][1]}).')
                             self.pieces[i].act_move(farside[x][0], farside[x][1])
                             return coordinates
         #Queen not checked, check rook?
@@ -754,6 +760,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                         if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
                             #farside and nearside match, valid move
                             coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                            print(f'Moving from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[0][0]}, {farside[0][1]}).')
                             self.pieces[i].act_move(farside[x][0], farside[x][1])
                             return coordinates
         #No rook, check bishop/knight?
@@ -774,6 +781,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                         if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
                             #farside and nearside match, valid move
                             coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                            print(f'Moving from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[0][0]}, {farside[0][1]}).')
                             self.pieces[i].act_move(farside[x][0], farside[x][1])
                             return coordinates
         #No bishop/knight, pawns?
@@ -793,6 +801,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                         if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
                             #farside and nearside match, valid move
                             coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                            print(f'Moving from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[0][0]}, {farside[0][1]}).')
                             self.pieces[i].act_move(farside[x][0], farside[x][1])
                             return coordinates
 
@@ -801,6 +810,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
         attacklist = self.pieces[ptu].arange(field)
         random.shuffle(attacklist)
         coordiates = [[self.pieces[ptu].xpos, self.pieces[ptu].ypos],[attacklist[0][0], attacklist[0][1]]]
+        print(f'Moving from ({self.pieces[ptu].xpos}, {self.pieces[ptu].ypos}) to ({attacklist[0][0]}, {attacklist[0][1]}).')
         self.pieces[ptu].act_move(attacklist[0][0], attacklist[0][1])
         return coordinates
 
