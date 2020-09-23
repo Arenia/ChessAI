@@ -604,7 +604,6 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
         #check for checkmate
         result = false
         for piece in self.pieces:
-            #Assume space to attack is owned for the sake of check
             if piece.move_attempt(tar_x,tar_y,field):
                 result = true
                 break
