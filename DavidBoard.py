@@ -24,7 +24,7 @@ def loadImages():
     #IMAGES['bp'] = p.image.load("Images/bp.png")
     pieces = ['wp','wR','wN','wB','wK','wQ', 'bp','bR','bN','bB','bK','bQ']
     for piece in pieces:
-        IMAGES[piece] = (p.image.load("Images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = p.transform.scale(p.image.load("Images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
 '''
 Main driver for code. Handle user Input and updating the graphics :)
@@ -37,12 +37,14 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gs = DavidChessEngine.GameState()#calling my ChessEngine for the state of the board
+    #print(gs.board)
     loadImages() #only do this once before the while loop :)
     running = True
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
+        drawGameState(screen, gs)
         clock.tick(MAX_FPS)
         p.display.flip()
 
@@ -65,7 +67,8 @@ def drawBoard(screen):
             color = colors[((r+c)%2)]
             p.draw.rect(screen, color, p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE)) 
             #Don't draw pieces here just incase we want to implement highlighting
-            #Extra loop isn't that expensive 
+            #Extra loop isn't that expensive
+        
 '''
 Draw pieces on board using current GameState.board
 '''
@@ -74,7 +77,7 @@ def drawPieces(screen,board):
         for c in range(DIMENSION):
             piece = board[r][c]
             if piece != "--": #not empty squares
-                screen.blit(IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE)) #Puts the piece in for us
+                screen.blit( IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE) ) #Puts the piece in for us
 
 
 
