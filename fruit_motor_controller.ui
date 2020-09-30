@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>691</width>
+    <height>317</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>691</width>
+    <height>317</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>691</width>
+    <height>317</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Hexbug Vex Motor Controller</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>161</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="labelMotor1">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>10</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>   Motor 1</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonMotor1">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>60</y>
+       <width>71</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>On</string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="spinBoxMotor1">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>110</y>
+       <width>71</width>
+       <height>33</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+    <widget class="QSlider" name="verticalSliderMotor1">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>26</width>
+       <height>160</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBothSides</enum>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBoxMotor1">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>160</y>
+       <width>81</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Spring</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelGPIOMotor1">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>210</y>
+       <width>71</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>I2C Motor 1</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="pushButtonQuit">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>270</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Quit</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_2">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>10</y>
+      <width>161</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="labelMotor2">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>10</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>   Motor 2</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonMotor2">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>60</y>
+       <width>71</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>On</string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="spinBoxMotor2">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>110</y>
+       <width>71</width>
+       <height>33</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+    <widget class="QSlider" name="verticalSliderMotor2">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>26</width>
+       <height>160</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBothSides</enum>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBoxMotor2">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>160</y>
+       <width>81</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Spring</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelGPIOMotor2">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>210</y>
+       <width>71</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>I2C Motor 2</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="frame_3">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>10</y>
+      <width>161</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="labelMotor1_3">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>10</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>   Motor 3</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonMotor3">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>60</y>
+       <width>71</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>On</string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="spinBoxMotor3">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>110</y>
+       <width>71</width>
+       <height>33</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+    <widget class="QSlider" name="verticalSliderMotor3">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>26</width>
+       <height>160</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBothSides</enum>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBoxMotor3">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>160</y>
+       <width>81</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Spring</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelGPIOMotor3">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>210</y>
+       <width>71</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>I2C Motor 3</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="frame_4">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>10</y>
+      <width>161</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="labelMotor1_4">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>10</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>   Motor 4</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonMotor4">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>60</y>
+       <width>71</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>On</string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="spinBoxMotor4">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>110</y>
+       <width>71</width>
+       <height>33</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+    <widget class="QSlider" name="verticalSliderMotor4">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>26</width>
+       <height>160</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBothSides</enum>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBoxMotor4">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>160</y>
+       <width>81</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Spring</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelGPIOMotor4">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>210</y>
+       <width>71</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>I2C Motor 4</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="labelSignature">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>290</y>
+      <width>431</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Crafted by David Meyer.  \m/ (~ ~) \m/</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
