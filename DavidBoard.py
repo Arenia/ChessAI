@@ -40,10 +40,30 @@ def main():
     #print(gs.board)
     loadImages() #only do this once before the while loop :)
     running = True
+    sqSelected = () #no square selected initially, keep track of last click of user (tuple: (row,col))
+    playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4,4)]
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
+            elif e.type == p.MOUSEBUTTONDOWN:
+                location = p.mouse.get_pos() #(x,y) location of mouse
+                col = location[0]//SQ_SIZE
+                row = location[1]//SQ_SIZE
+                
+                if sqSelected == (row,col): #User clicked the same square twice
+                    sqSelected = () #deselect :)
+                    playerClicks = [] #clear player clicks
+                else:
+                    sqSelected = (row,col)
+                    playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
+                if len(playerClicks) == 2: #After 2nd click
+                    move = DavidChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)#Call DavidChessEngine for log and moving
+                    print(move.getChessNotation())
+                    gs.makeMove(move)
+                    sqSelected = () #reset user Clicks :)
+                    playerClicks = []
+                
         drawGameState(screen, gs)
         clock.tick(MAX_FPS)
         p.display.flip()
