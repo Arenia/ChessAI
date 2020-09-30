@@ -6,6 +6,7 @@ Thnking use this for user input as well as the board>?? idk.
 '''
 
 import pygame as p
+from ChessAI import DavidChessEngine
 
 p.init()
 WIDTH = HEIGHT = 512
@@ -28,14 +29,14 @@ Main driver for code. Handle user Input and updating the graphics :)
 
 '''
 
-def main()
+def main():
     p.init()
 	screen = p.display.set_mode((WIDTH, HEIGHT))
 	clock = p.time.Clock()
 	screen.fill(p.Color("white"))
 	gs = DavidChessEngine.GameState()#calling my ChessEngine for the state of the board
 	loadImages() #only do this once before the while loop :)
-	running = true
+	running = True
 	while running:
 	    for e in p.event.get():
 		    if e.type == p.QUIT:
@@ -44,17 +45,17 @@ def main()
 		p.display.flip()
 
 
-''''
+'''
 Responsible for all graphics in game
-''''
+'''
 def drawGameState(screen, gs): #this draws the squares on the board
     drawBoard(screen)
 	#add piece highlighting or move suggestions (later?)
 	drawPieces(screen, gs.board)#draw pieces on the squares
 
-''''
+'''
 Draw squares on board
-''''
+'''
 def drawBoard(screen):
     colors = [p.Color("white"), p.Color("gray")]
 	for r in range(DIMENSION):
