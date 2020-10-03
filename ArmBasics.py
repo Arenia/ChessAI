@@ -53,10 +53,12 @@ def test1():
     
 def checkMate():
     clawClose()
+    #Maybe Twist as well?
     clawOp()
     clawClose()
     clawOp()
     
+
 def a11():
     twist(.4, .3)
     armOne(.6, .4)
@@ -67,6 +69,19 @@ def a11():
     #armOne(-.6, .4)  #Good up to here!!!
     #armTwo(.3,.3)
     #twist(-0.4, .3)
+
+
+
+
+
+
+
+
+
+
+
+
+
 def a12():
     twist(.335, .3)
     

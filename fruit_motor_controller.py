@@ -1,23 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-r"""
-___  ____  _____   ____  _____ ____ _ __ _____
-\  \/ (__)/ .___>_/    \/   . >    | |  | ____>
- \    |  | <_<    > <> |     <  <> | |  |___  \
-  \   |__|____   |\____|__|\  \____|    |      >
-   \_/        `--'          `--'    `---'\____/
-        P  R  o  G  R  A  M  M  i  N  G
-<========================================[KCS]=>
-  Developer: David Meyer
-  Project  : Hexbug Vex Motor Controller Widget
-  Purpose  : Basic Adafruit HAT Controller GUI for testing and casual use
-  Version  : 1.0.0
-<=================================[02/08/2017]=>
-
-    This code is the same as the L298N code but uses the Adafruit_MotorHAT...
-    which is much easier to use than the GPIO features.
-
-"""
 
 import sys
 from PyQt4 import QtCore, QtGui, uic

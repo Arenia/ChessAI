@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>691</width>
-    <height>317</height>
+    <width>1200</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>691</width>
-    <height>317</height>
+    <width>1200</width>
+    <height>500</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>691</width>
-    <height>317</height>
+    <width>1200</width>
+    <height>500</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>161</width>
+      <width>1200</width>
       <height>241</height>
      </rect>
     </property>
@@ -73,6 +73,7 @@
       <string>On</string>
      </property>
     </widget>
+    
     <widget class="QSpinBox" name="spinBoxMotor1">
      <property name="geometry">
       <rect>
@@ -89,6 +90,27 @@
       <number>255</number>
      </property>
     </widget>
+    
+    
+    <widget class="QSpinBox" name="spinBoxMotor1Angle">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>145</y>
+       <width>71</width>
+       <height>33</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+    
+    
+    
     <widget class="QSlider" name="verticalSliderMotor1">
      <property name="geometry">
       <rect>
@@ -111,11 +133,18 @@
       <enum>QSlider::TicksBothSides</enum>
      </property>
     </widget>
+    
+    
+    
+    
+    
+    
+    
     <widget class="QCheckBox" name="checkBoxMotor1">
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>160</y>
+       <y>175</y>
        <width>81</width>
        <height>26</height>
       </rect>
@@ -171,6 +200,8 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
+    
+    
     <widget class="QLabel" name="labelMotor2">
      <property name="geometry">
       <rect>
@@ -190,6 +221,8 @@
       <string>   Motor 2</string>
      </property>
     </widget>
+    
+    
     <widget class="QPushButton" name="pushButtonMotor2">
      <property name="geometry">
       <rect>
@@ -203,6 +236,8 @@
       <string>On</string>
      </property>
     </widget>
+    
+    
     <widget class="QSpinBox" name="spinBoxMotor2">
      <property name="geometry">
       <rect>
@@ -219,6 +254,41 @@
       <number>255</number>
      </property>
     </widget>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <widget class="QSpinBox" name="spinBoxMotor2Angle">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>145</y>
+       <width>71</width>
+       <height>33</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <widget class="QSlider" name="verticalSliderMotor2">
      <property name="geometry">
       <rect>
@@ -241,11 +311,13 @@
       <enum>QSlider::TicksBothSides</enum>
      </property>
     </widget>
+    
+    
     <widget class="QCheckBox" name="checkBoxMotor2">
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>160</y>
+       <y>175</y>
        <width>81</width>
        <height>26</height>
       </rect>
@@ -254,6 +326,8 @@
       <string>Spring</string>
      </property>
     </widget>
+
+    
     <widget class="QLabel" name="labelGPIOMotor2">
      <property name="geometry">
       <rect>
@@ -273,6 +347,31 @@
      </property>
     </widget>
    </widget>
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
    <widget class="QFrame" name="frame_3">
     <property name="geometry">
      <rect>
@@ -320,6 +419,8 @@
       <string>On</string>
      </property>
     </widget>
+    
+    
     <widget class="QSpinBox" name="spinBoxMotor3">
      <property name="geometry">
       <rect>
@@ -336,6 +437,29 @@
       <number>255</number>
      </property>
     </widget>
+    
+    
+    <widget class="QSpinBox" name="spinBoxMotor3Angle">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>145</y>
+       <width>71</width>
+       <height>33</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+    
+    
+    
+    
+    
     <widget class="QSlider" name="verticalSliderMotor3">
      <property name="geometry">
       <rect>
@@ -362,7 +486,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>160</y>
+       <y>175</y>
        <width>81</width>
        <height>26</height>
       </rect>
@@ -437,6 +561,8 @@
       <string>On</string>
      </property>
     </widget>
+    
+    
     <widget class="QSpinBox" name="spinBoxMotor4">
      <property name="geometry">
       <rect>
@@ -453,6 +579,29 @@
       <number>255</number>
      </property>
     </widget>
+    
+    
+    <widget class="QSpinBox" name="spinBoxMotor4Angle">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>145</y>
+       <width>71</width>
+       <height>33</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>-255</number>
+     </property>
+     <property name="maximum">
+      <number>255</number>
+     </property>
+    </widget>
+    
+    
+    
+    
+    
     <widget class="QSlider" name="verticalSliderMotor4">
      <property name="geometry">
       <rect>
@@ -479,7 +628,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>160</y>
+       <y>175</y>
        <width>81</width>
        <height>26</height>
       </rect>
@@ -527,7 +676,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Crafted by David Meyer.  \m/ (~ ~) \m/</string>
+     <string>Crafted by Ken C.Soukup == Modified by David Meyer.  </string>
     </property>
    </widget>
   </widget>
