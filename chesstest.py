@@ -2,6 +2,8 @@
 import time
 import random
 
+#Todos: fix check behavior, implement pawn promotion and sorting of piece set by value
+
 class ChessPiece:
     #Basic methods for all pieces.
     def __init__(self, xcod, ycod):
