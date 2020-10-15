@@ -1,6 +1,9 @@
 # Initial Board Version
 import time
 import random
+import DavidBoard
+import DavidChessEngine
+import pygame as p
 
 class ChessPiece:
     #Basic methods for all pieces.
@@ -15,14 +18,34 @@ class ChessPiece:
 class Board:
     def __init__(self):
         #initialize Board
-        self.boardstate = []
-        for x in range(0,8):
-            self.boardstate.append(["_","_","_","_","_","_","_","_"])
+        self.boardstate = [["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"]]
 
     def getname(tar_x, tar_y, team):
         return boardstate[tar_x][tar_y]
 
     def move_piece(self, spot):
+
+        a = spot[0][0]
+        b = spot[0][1]
+        c = spot[1][0]
+        d = spot[1][1]
+        print(a)
+        print(b)
+        print(c)
+        print(d)
+
+        #move = DavidChessEngine.Move(spot[0],spot[1], self.boardstate)
+        #DavidChessEngine.GameState.makeMove(move)
+        #DavidChessEngine.GameState.toDavidEngine(spot)
+
+
         #Moves a piece from the coordinates given in a turn. Overwrites the target location, piece removal handled by Player classes.
         self.boardstate[spot[1][0]][spot[1][1]] = self.boardstate[spot[0][0]][spot[0][1]]
         self.boardstate[spot[0][0]][spot[0][1]] = "_"
@@ -889,7 +912,6 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
         self.pieces[ptu].act_move(attacklist[0][0], attacklist[0][1])
         return coordinates
 
-
 class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
     #class for the Player side, white.
     def __init__(self):
@@ -1170,6 +1192,52 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
         return coordinates
 
 
+
+
+p.init()
+WIDTH = HEIGHT = 512
+DIMENSION = 8 #8x8
+SQ_SIZE = HEIGHT //DIMENSION
+MAX_FPS = 15
+IMAGES = {}
+
+'''
+Initialize a global dictionary of images. this will be call exactly once in main
+'''
+def loadImages():
+    #IMAGES['wp'] = p.image.load("Images/P.png") #from folder images / 'the picture to use for that piece.'
+    #IMAGES['bp'] = p.image.load("Images/bp.png")
+    pieces = ['P','R','N','B','K','Q', 'p','r','n','b','k','q']
+    for piece in pieces:
+        IMAGES[piece] = p.transform.scale(p.image.load("Images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+
+def drawGameState(screen, gs):  # this draws the squares on the board
+    drawBoard(screen)
+    # add piece highlighting or move suggestions (later?)
+    drawPieces(screen, gs)  # draw pieces on the squares
+'''
+Draw squares on board
+'''
+def drawBoard(screen):
+    colors = [p.Color("white"), p.Color("gray")]
+    for r in range(DIMENSION):
+        for c in range(DIMENSION):
+            color = colors[((r + c) % 2)]
+            p.draw.rect(screen, color, p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+            # Don't draw pieces here just incase we want to implement highlighting
+            # Extra loop isn't that expensive
+'''
+Draw pieces on board using current GameState.board
+'''
+def drawPieces(screen, board):
+    for r in range(DIMENSION):
+        for c in range(DIMENSION):
+            piece = board[r][c]
+            if piece != "_":  # not empty squares
+                screen.blit(IMAGES[piece],
+                            p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))  # Puts the piece in for us
+
+
 class Game(Player, Opponent, Board):
     #Class for the board itself.
     def __init__(self):
@@ -1191,7 +1259,38 @@ class Game(Player, Opponent, Board):
         b_check = False
         for y in range(0,8):
             print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
+
+        #p.init()
+        #screen = p.display.set_mode((WIDTH, HEIGHT))
+        clock = p.time.Clock()
+        #screen.fill(p.Color("white"))
+        #gs = self.field.boardstate
+        #print("Printing gs")
+        #print(gs)
+        #print("DONE PRINTING GS")
+        #loadImages()
+
+
+
+
         while True:
+
+
+
+
+            # David's GUI logic;;;;;;;;;;;;;;issue is that the rest of this class is far to involved..
+            #drawGameState(screen, gs)
+            #clock.tick(MAX_FPS)
+            #p.display.flip()
+
+
+
+
+
+
+
+
+
             #Engage Player turn
             if not w_check:
                 spot = self.white.turn(self.field)

@@ -20,11 +20,11 @@ IMAGES = {}
 Initialize a global dictionary of images. this will be call exacly once in main
 '''
 def loadImages():
-    #IMAGES['wp'] = p.image.load("Images/wp.png") #from folder images / 'the picture to use for that piece.'
+    #IMAGES['wp'] = p.image.load("Images/P.png") #from folder images / 'the picture to use for that piece.'
     #IMAGES['bp'] = p.image.load("Images/bp.png")
     pieces = ['wp','wR','wN','wB','wK','wQ', 'bp','bR','bN','bB','bK','bQ']
     for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load("Images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = p.transform.scale(p.image.load("Images2/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
 '''
 Main driver for code. Handle user Input and updating the graphics :)
@@ -37,11 +37,18 @@ def main():
     clock = p.time.Clock()
     screen.fill(p.Color("white"))
     gs = DavidChessEngine.GameState()#calling my ChessEngine for the state of the board
+
+    validMoves = gs.getValidMoves()  # Don't regenerate this until a valide move is made
+    moveMade = False  # flag for when move is made
+
     #print(gs.board)
     loadImages() #only do this once before the while loop :)
     running = True
     sqSelected = () #no square selected initially, keep track of last click of user (tuple: (row,col))
     playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4,4)]
+
+
+
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
@@ -58,12 +65,30 @@ def main():
                     sqSelected = (row,col)
                     playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
                 if len(playerClicks) == 2: #After 2nd click
-                    move = DavidChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)#Call DavidChessEngine for log and moving
-                    print(move.getChessNotation())
-                    gs.makeMove(move)
-                    sqSelected = () #reset user Clicks :)
-                    playerClicks = []
-                
+                    # Call DavidChessEngine for log and moving
+                    move = DavidChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+                    #if move.isWhite():
+                    if move in validMoves:
+                        print(move.getChessNotation())
+                        gs.makeMove(move)
+                        moveMade = True
+
+                        sqSelected = () #reset user Clicks :)
+                        playerClicks = []
+                    else:
+
+                        #print("Not a white piece!")
+                        sqSelected = ()  # reset user Clicks :)
+                        playerClicks = []
+            #Key handlers
+            #elif e.type == p.KEYDOWN:
+                #if e.key == p.k_z: #undo when 'z' is pressed
+                    #gs.undoMove()
+                    #moveMade = True
+            if moveMade:
+                validMoves = gs.getValidMoves()
+                moveMade = False
+
         drawGameState(screen, gs)
         clock.tick(MAX_FPS)
         p.display.flip()
@@ -76,7 +101,6 @@ def drawGameState(screen, gs): #this draws the squares on the board
     drawBoard(screen)
     #add piece highlighting or move suggestions (later?)
     drawPieces(screen, gs.board)#draw pieces on the squares
-
 '''
 Draw squares on board
 '''
@@ -88,7 +112,6 @@ def drawBoard(screen):
             p.draw.rect(screen, color, p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE)) 
             #Don't draw pieces here just incase we want to implement highlighting
             #Extra loop isn't that expensive
-        
 '''
 Draw pieces on board using current GameState.board
 '''
@@ -98,9 +121,6 @@ def drawPieces(screen,board):
             piece = board[r][c]
             if piece != "--": #not empty squares
                 screen.blit( IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE) ) #Puts the piece in for us
-
-
-
 
 if __name__ == "__main__": #Recommended way by Python
     main()
