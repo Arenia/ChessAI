@@ -68,18 +68,18 @@ def main():
                     # Call DavidChessEngine for log and moving
                     move = DavidChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
                     #if move.isWhite():
-                    if move in validMoves:
-                        print(move.getChessNotation())
-                        gs.makeMove(move)
-                        moveMade = True
+                    for i in range(len(validMoves)):
+                        if move == validMoves[i]:
+                            print(move.getChessNotation())
+                            gs.makeMove(validMoves[i])
+                            moveMade = True
 
-                        sqSelected = () #reset user Clicks :)
-                        playerClicks = []
-                    else:
-
-                        #print("Not a white piece!")
-                        sqSelected = ()  # reset user Clicks :)
-                        playerClicks = []
+                            sqSelected = () #reset user Clicks :)
+                            playerClicks = []
+                        else:
+                            #print("Not your turn!!!! >:(")
+                            sqSelected = ()  # reset user Clicks :)
+                            playerClicks = []
             #Key handlers
             #elif e.type == p.KEYDOWN:
                 #if e.key == p.k_z: #undo when 'z' is pressed
