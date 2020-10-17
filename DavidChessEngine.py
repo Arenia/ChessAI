@@ -1,20 +1,25 @@
-
-
-import chesstest as ct
+#Identify where Tyler needs to put his AI logic (BareBones AI)
+#randomShuffle => random.shuffle(  arrasy/List giving  )
+    #Shuffles in place no need to seed
 
 class GameState():
     def __init__(self):
         self.board = [
-            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "--"],
-            ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "wp"],
+            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+            ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["--", "--", "--", "--", "--", "--", "--", "--"],
             ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
-            ["wR", "wN", "wB", "wQ", "wK", "wN", "wB", "wR"]]
+            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
         self.moveFunctions = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves,
                               'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
+
+        #value of piece
+        self.valOfPiece = {'p': 1, 'R': 2, 'N': 3,
+                              'B': 4, 'Q': 5, 'K': 6}
+
         self.whiteToMove = True
         self.moveLog = []
         #The following two are for checking checks..
@@ -90,7 +95,6 @@ class GameState():
                 elif move.startCol ==7: #right rook
                     self.currentCastleingRights.bks = False
 
-
     def getValidMoves(self):
         for log in self.castleRightsLog:
             print(log.wks, log.wqs, log.bks, log.bqs, end=", ")
@@ -118,12 +122,11 @@ class GameState():
         else:
             self.getCastleMoves(self.blackKingLocation[0], self.blackKingLocation[1], moves)
 
-
-
         for i in range (len(moves)-1, -1, -1): #when removing from a list go backwards through list
             self.makeMove(moves[i])
             #3 and 4 finished using inCheck()
             self.whiteToMove = not self.whiteToMove #Thinks that it's opp turn
+
             if self.inCheck():
                 moves.remove(moves[i]) #5
             self.whiteToMove = not self.whiteToMove
@@ -200,13 +203,11 @@ class GameState():
         moves = []
         for r in range(len(self.board)): #range of 2d arrayList length of board ; num of rows
             for c in range(len(self.board[r])):  #Number of cols in given row
-                turn = self.board[r][c][0]
+                turn = self.board[r][c][0] # index string assuming
                 if (turn == 'w' and self.whiteToMove) or (turn == 'b' and not self.whiteToMove):
                     piece = self.board[r][c][1]
                     self.moveFunctions[piece](r,c,moves)#calls appropriate move functioon based on piece type
         return moves
-
-
 
 
 #######################################################################################################     MOVEMENT
@@ -328,13 +329,11 @@ class GameState():
         if self.board[r][c+1] == '--' and self.board[r][c+2] == '--':
             if not self.squareUnderAttack(r,c+1) and not self.squareUnderAttack(r,c+2):
                 moves.append(Move((r,c), (r,c+2), self.board, isCastleMove=True))
+
     def getQueensideCastleMoves(self,r,c,moves):
         if self.board[r][c-1] == '--' and self.board[r][c-2] == '--' and self.board[r][c-3]:
             if not self.squareUnderAttack(r,c-1) and not self.squareUnderAttack(r, c-2):
                 moves.append(Move((r,c), (r,c-2), self.board, isCastleMove=True))
-
-
-
 
 class Move():
     #maps keys to values
@@ -346,9 +345,7 @@ class Move():
     filesToCols = {"a":0, "b":1, "c":2, "d":3,
                    "e":4, "f":5, "g":6, "h":7}
     colsToFiles = {v:k for k, v in filesToCols.items()}
-    
-    
-    
+
     def __init__(self, startSq, endSq, board, isEnpassantMove = False, isCastleMove = False): #enpassantPossible is a optional variable!@!!!
         #Check if valid moves, tyler should do this!
         self.startRow = startSq[0]
@@ -364,15 +361,13 @@ class Move():
             self.pieceCaptured = 'wp' if self.pieceMoved == 'bp' else 'bp'
         #CastleMove
         self.isCastleMove = isCastleMove
-
+        #rint(self.moveID)
 
     def getChessNotation(self):
         return self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol)
         
     def getRankFile(self, r, c):
         return self.colsToFiles[c] + self.rowsToRanks[r]
-
-
 
     '''
     Overriding equals method

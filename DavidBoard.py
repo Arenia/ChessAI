@@ -21,16 +21,14 @@ Initialize a global dictionary of images. this will be call exacly once in main
 '''
 def loadImages():
     #IMAGES['wp'] = p.image.load("Images/P.png") #from folder images / 'the picture to use for that piece.'
-    #IMAGES['bp'] = p.image.load("Images/bp.png")
+    #IMAGES['bp'] = p.image.load("Images/bP.png")
     pieces = ['wp','wR','wN','wB','wK','wQ', 'bp','bR','bN','bB','bK','bQ']
     for piece in pieces:
         IMAGES[piece] = p.transform.scale(p.image.load("Images2/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
-
 '''
 Main driver for code. Handle user Input and updating the graphics :)
 
 '''
-
 def main():
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
@@ -41,13 +39,11 @@ def main():
     validMoves = gs.getValidMoves()  # Don't regenerate this until a valide move is made
     moveMade = False  # flag for when move is made
 
-    #print(gs.board)
+    print(gs.board)
     loadImages() #only do this once before the while loop :)
     running = True
     sqSelected = () #no square selected initially, keep track of last click of user (tuple: (row,col))
     playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4,4)]
-
-
 
     while running:
         for e in p.event.get():
