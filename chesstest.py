@@ -1,7 +1,12 @@
 # Initial Board Version
 import time
 import random
-import pygame as david
+import DavidBoard
+import DavidChessEngine
+import pygame as p
+
+#Todos: fix check behavior, implement pawn promotion and sorting of piece set by value
+#Piece sort may be unnecessary given the swap being inserted
 
 class ChessPiece:
     #Basic methods for all pieces.
@@ -12,20 +17,18 @@ class ChessPiece:
     def act_move(self, tar_xpos, tar_ypos):
         self.ypos = tar_ypos
         self.xpos = tar_xpos
-        david.display.update()
 
 class Board:
     def __init__(self):
         #initialize Board
-        self.boardstate = [["wR","wP","_","_","_","_","bP","bR"],
-                           ["wN","wP","_","_","_","_","bP","bN"],
-                           ["wB","wP","_","_","_","_","bP","bB"],
-                           ["wQ","wP","_","_","_","_","bP","bK"],
-                           ["wK","wP","_","_","_","_","bP","bQ"],
-                           ["wB","wP","_","_","_","_","bP","bB"],
-                           ["wN","wP","_","_","_","_","bP","bN"],
-                           ["wR","wP","_","_","_","_","bP","bR"]]
-        #self."bP" = p
+        self.boardstate = [["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"],
+                           ["_","_","_","_","_","_","_","_"]]
 
     def getname(tar_x, tar_y, team):
         return boardstate[tar_x][tar_y]
@@ -49,7 +52,6 @@ class Board:
         #Moves a piece from the coordinates given in a turn. Overwrites the target location, piece removal handled by Player classes.
         self.boardstate[spot[1][0]][spot[1][1]] = self.boardstate[spot[0][0]][spot[0][1]]
         self.boardstate[spot[0][0]][spot[0][1]] = "_"
-        david.display.update()
 
     def find_piece(self, identifier):
         collection = []
@@ -67,9 +69,9 @@ class King(ChessPiece):
         #Value is set exceptionally high to disregard other attack attempts
         self.value = 999999
         if side:
-            self.name = "wK"
+            self.name = "K"
         else:
-            self.name = "bK"
+            self.name = "k"
 
     def distant_range(self, tar_xpos, tar_ypos, field):
         #use passed target as the location of the piece
@@ -109,9 +111,9 @@ class Rook(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 5
         if side:
-            self.name = "wR"
+            self.name = "R"
         else:
-            self.name = "bR"
+            self.name = "r"
 
     def distant_range(self, tar_xpos, tar_ypos, field):
         #use passed target as the location of the piece
@@ -214,9 +216,9 @@ class Knight(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 3
         if side:
-            self.name = "wN"
+            self.name = "N"
         else:
-            self.name = "bN"
+            self.name = "n"
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
         x_dis = abs(self.xpos - tar_xpos)
@@ -255,9 +257,9 @@ class Bishop(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 3
         if side:
-            self.name = "wB"
+            self.name = "B"
         else:
-            self.name = "bB"
+            self.name = "b"
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
         if (field.boardstate[tar_xpos][tar_ypos].isupper() != self.name.isupper()) or (field.boardstate[tar_xpos][tar_ypos] == "_"):
@@ -382,9 +384,9 @@ class Queen(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 9
         if side:
-            self.name = "wQ"
+            self.name = "Q"
         else:
-            self.name = "bQ"
+            self.name = "q"
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
         #Negative distance means targeting to the up-left
@@ -546,9 +548,9 @@ class BlackPawn(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 1
         if side:
-            self.name = "wP"
+            self.name = "P"
         else:
-            self.name = "bP"
+            self.name = "p"
 
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
@@ -557,7 +559,7 @@ class BlackPawn(ChessPiece):
                 return True
             elif ((self.xpos == tar_xpos+1) or (self.xpos == tar_xpos-1)):
                 type = field.boardstate[tar_xpos][tar_ypos]
-                if type == "wQ" or type == "wK" or type == "wP" or type == "wB" or type == "wN" or type == "wR":
+                if type == "Q" or type == "K" or type == "P" or type == "B" or type == "N" or type == "R":
                     return True
         return False
 
@@ -572,7 +574,7 @@ class BlackPawn(ChessPiece):
                         targets.append([a, b])
                     elif ((tar_xpos == a+1) or (tar_xpos == a-1)):
                         type = field.boardstate[a][b]
-                        if type == "wQ" or type == "wK" or type == "wP" or type == "wB" or type == "wN" or type == "wR":
+                        if type == "Q" or type == "K" or type == "P" or type == "B" or type == "N" or type == "R":
                             targets.append([a, b])
         return targets
 
@@ -592,9 +594,9 @@ class WhitePawn(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 1
         if side:
-            self.name = "wP"
+            self.name = "P"
         else:
-            self.name = "bP"
+            self.name = "p"
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
         if (self.ypos == tar_ypos+1):
@@ -602,7 +604,7 @@ class WhitePawn(ChessPiece):
                 return True
             elif ((self.xpos == tar_xpos+1) or (self.xpos == tar_xpos-1)):
                 type = field.boardstate[tar_xpos][tar_ypos]
-                if type == "bQ" or type == "bK" or type == "bP" or type == "bB" or type == "bN" or type == "bR":
+                if type == "q" or type == "k" or type == "p" or type == "b" or type == "n" or type == "r":
                     return True
         return False
 
@@ -617,7 +619,7 @@ class WhitePawn(ChessPiece):
                         targets.append([a, b])
                     elif ((tar_xpos == a+1) or (tar_xpos == a-1)):
                         type = field.boardstate[tar_xpos][tar_ypos]
-                        if type == "bQ" or type == "bK" or type == "bP" or type == "bB" or type == "bN" or type == "bR":
+                        if type == "q" or type == "k" or type == "p" or type == "b" or type == "n" or type == "r":
                             targets.append([a, b])
         return targets
 
@@ -664,7 +666,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
 
     def find_king(self):
         for piece in self.pieces:
-            if piece.name == "bK":
+            if piece.name.lower() == "k":
                 target = [piece.xpos, piece.ypos]
                 return target
         raise Exception("King missing?")
@@ -725,25 +727,45 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
         #if condition falls through
         return False
 
+    def pawn_promote(self, field):
+        for i in range(len(self.pieces)):
+            #Check if a pawn is at the back
+            if self.pieces[i].name == "p" and self.pieces[i].ypos == 0:
+                #keep its coordinates
+                y_spot = self.pieces[i].ypos
+                x_spot = self.pieces[i].xpos
+                print(f"Moving pawn located at ({x_spot}, {y_spot}).")
+                #Remove and reintroduce as queen
+                self.pieces.pop(i)
+                self.pieces.append(Queen(x_spot, y_spot, False))
+                #Swap last index and index prior, knowing they are the king and new queen
+                self.pieces[len(self.pieces)-2], self.pieces[len(self.pieces)-1] = self.pieces[len(self.pieces)-1], self.pieces[len(self.pieces)-2]
+                #Reassign the field queen to not break
+                field[x_spot][yy_spot] = "q"
+
     def turn(self, field):
         #Search for highest value piece to take. If can't take, aim at highest in range next turn. If none in range, random move.
         #Don't need to check if king can be attacked, assumed not if game is going
         #Check for queen
-        target = field.find_piece("wQ")
+        target = field.find_piece("Q")
         #print("Queen attack check")
-        if target:
-            if self.inattackrange(target[0][0], target[0][1], field):
-                attack_list = self.canattack(target[0][0], target[0][1], field)
-                #Piece to use, random from the available attackers
-                ptu = random.choice(attack_list)
-                coordinates = [[self.pieces[ptu].xpos, self.pieces[ptu].ypos], [target[0][0], target[0][1]]]
-                print(f'Moving {self.pieces[ptu].name} from ({self.pieces[ptu].xpos}, {self.pieces[ptu].ypos}) to ({target[0][0]}, {target[0][1]}).')
-                self.pieces[ptu].act_move(target[0][0], target[0][1])
-                return coordinates
+        if len(target) >0:
+            #Shuffle target to randomize target
+            random.shuffle(target)
+            #Check each piece through the list
+            for x in range(len(target)):
+                if self.inattackrange(target[0][0], target[0][1], field):
+                    attack_list = self.canattack(target[0][0], target[0][1], field)
+                    #Piece to use, random from the available attackers
+                    ptu = random.choice(attack_list)
+                    coordinates = [[self.pieces[ptu].xpos, self.pieces[ptu].ypos], [target[0][0], target[0][1]]]
+                    print(f'Moving {self.pieces[ptu].name} from ({self.pieces[ptu].xpos}, {self.pieces[ptu].ypos}) to ({target[0][0]}, {target[0][1]}).')
+                    self.pieces[ptu].act_move(target[0][0], target[0][1])
+                    return coordinates
         #Queen out of range, try to attack rook
-        target = field.find_piece("wR")
+        target = field.find_piece("R")
         #print("Rook attack check")
-        if target:
+        if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
             #Check each piece through the list
@@ -757,10 +779,10 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No rooks, sample both bishops and knights at the same time
-        target = field.find_piece("wB")
-        target.extend(field.find_piece("wN"))
+        target = field.find_piece("B")
+        target.extend(field.find_piece("N"))
         #print("Bishop and knight attack check")
-        if target:
+        if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
             #Check each piece through the list
@@ -777,9 +799,9 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No knights or bishops, pawns
-        target = field.find_piece("wP")
+        target = field.find_piece("P")
         #print("Pawn attack check")
-        if target:
+        if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
             #Check each piece through the list
@@ -794,9 +816,9 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     return coordinates
         #No pawns, try and check king
         #use piece's attack range from king's position?
-        target = field.find_piece("wK")
+        target = field.find_piece("K")
         #Iterates through pieces, lower value first
-        if target:
+        if len(target) >0:
             for i in range(len(self.pieces)):
                 #farside returns a two layer array containing the indicies that can attack target
                 #nearside returns a two layer array containing the indicies that the piece can reach now
@@ -814,91 +836,108 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                             print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
                             return coordinates
         #Falling through loop assumes unable to check king, check queen
-        target = field.find_piece("wQ")
+        target = field.find_piece("Q")
         #Iterates through pieces, lower value first
-        if target:
-            for i in range(len(self.pieces)):
-                #farside returns a two layer array containing the indicies that can attack target
-                #nearside returns a two layer array containing the indicies that the piece can reach now
-                #nearside and farside locations must match for a valid move
-                #Use target as location to evaluate for
-                farside = self.pieces[i].distant_range(target[0][0],target[0][1],field)
-                nearside = self.pieces[i].arange(field)
-                #Valid location if piece.arange == piece.distant_range
-                for x in range(len(farside)):
-                    for y in range(len(nearside)):
-                        if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
-                            #farside and nearside match, valid move
-                            coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
-                            print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
-                            self.pieces[i].act_move(farside[x][0], farside[x][1])
-                            return coordinates
+        if len(target) >0:
+            #Shuffle target to randomize target
+            random.shuffle(target)
+            #Check each piece through the list
+            for item in target:
+                for i in range(len(self.pieces)):
+                    #farside returns a two layer array containing the indicies that can attack target
+                    #nearside returns a two layer array containing the indicies that the piece can reach now
+                    #nearside and farside locations must match for a valid move
+                    #Use target as location to evaluate for
+                    farside = self.pieces[i].distant_range(item[0],item[1],field)
+                    nearside = self.pieces[i].arange(field)
+                    #Valid location if piece.arange == piece.distant_range
+                    for x in range(len(farside)):
+                        for y in range(len(nearside)):
+                            if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
+                                #farside and nearside match, valid move
+                                coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                                print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
+                                self.pieces[i].act_move(farside[x][0], farside[x][1])
+                                return coordinates
         #Queen not checked, check rook?
-        target = field.find_piece("wR")
+        target = field.find_piece("R")
         #Iterates through pieces, lower value first
-        if target:
-            for i in range(len(self.pieces)):
-                #farside returns a two layer array containing the indicies that can attack target
-                #nearside returns a two layer array containing the indicies that the piece can reach now
-                #nearside and farside locations must match for a valid move
-                #Use target as location to evaluate for
-                farside = self.pieces[i].distant_range(target[0][0],target[0][1],field)
-                nearside = self.pieces[i].arange(field)
-                #Valid location if piece.arange == piece.distant_range
-                for x in range(len(farside)):
-                    for y in range(len(nearside)):
-                        if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
-                            #farside and nearside match, valid move
-                            coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
-                            print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
-                            self.pieces[i].act_move(farside[x][0], farside[x][1])
-                            return coordinates
+        if len(target) >0:
+            #Shuffle target to randomize target
+            random.shuffle(target)
+            #Check each piece through the list
+            for item in target:
+                for i in range(len(self.pieces)):
+                    #farside returns a two layer array containing the indicies that can attack target
+                    #nearside returns a two layer array containing the indicies that the piece can reach now
+                    #nearside and farside locations must match for a valid move
+                    #Use target as location to evaluate for
+                    farside = self.pieces[i].distant_range(item[0],item[1],field)
+                    nearside = self.pieces[i].arange(field)
+                    #Valid location if piece.arange == piece.distant_range
+                    for x in range(len(farside)):
+                        for y in range(len(nearside)):
+                            if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
+                                #farside and nearside match, valid move
+                                coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                                print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
+                                self.pieces[i].act_move(farside[x][0], farside[x][1])
+                                return coordinates
         #No rook, check bishop/knight?
-        target = field.find_piece("wB")
-        target.extend(field.find_piece("wN"))
+        target = field.find_piece("B")
+        target.extend(field.find_piece("N"))
         #Iterates through pieces, lower value first
-        if target:
-            for i in range(len(self.pieces)):
-                #farside returns a two layer array containing the indicies that can attack target
-                #nearside returns a two layer array containing the indicies that the piece can reach now
-                #nearside and farside locations must match for a valid move
-                #Use target as location to evaluate for
-                farside = self.pieces[i].distant_range(target[0][0],target[0][1],field)
-                nearside = self.pieces[i].arange(field)
-                #Valid location if piece.arange == piece.distant_range
-                for x in range(len(farside)):
-                    for y in range(len(nearside)):
-                        if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
-                            #farside and nearside match, valid move
-                            coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
-                            print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
-                            self.pieces[i].act_move(farside[x][0], farside[x][1])
-                            return coordinates
+        if len(target) >0:
+            #Shuffle target to randomize target
+            random.shuffle(target)
+            #Check each piece through the list
+            for x in target:
+                for i in range(len(self.pieces)):
+                    #farside returns a two layer array containing the indicies that can attack target
+                    #nearside returns a two layer array containing the indicies that the piece can reach now
+                    #nearside and farside locations must match for a valid move
+                    #Use target as location to evaluate for
+                    farside = self.pieces[i].distant_range(item[0],item[1],field)
+                    nearside = self.pieces[i].arange(field)
+                    #Valid location if piece.arange == piece.distant_range
+                    for x in range(len(farside)):
+                        for y in range(len(nearside)):
+                            if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
+                                #farside and nearside match, valid move
+                                coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                                print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
+                                self.pieces[i].act_move(farside[x][0], farside[x][1])
+                                return coordinates
         #No bishop/knight, pawns?
-        target = field.find_piece("wP")
+        target = field.find_piece("P")
         #Iterates through pieces, lower value first
-        if target:
-            for i in range(len(self.pieces)):
-                #farside returns a two layer array containing the indicies that can attack target
-                #nearside returns a two layer array containing the indicies that the piece can reach now
-                #nearside and farside locations must match for a valid move
-                #Use target as location to evaluate for
-                farside = self.pieces[i].distant_range(target[0][0],target[0][1],field)
-                nearside = self.pieces[i].arange(field)
-                #Valid location if piece.arange == piece.distant_range
-                for x in range(len(farside)):
-                    for y in range(len(nearside)):
-                        if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
-                            #farside and nearside match, valid move
-                            coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
-                            print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
-                            self.pieces[i].act_move(farside[x][0], farside[x][1])
-                            return coordinates
+        if len(target) >0:
+            #Shuffle target to randomize target
+            random.shuffle(target)
+            #Check each piece through the list
+            for item in target:
+                for i in range(len(self.pieces)):
+                    #farside returns a two layer array containing the indicies that can attack target
+                    #nearside returns a two layer array containing the indicies that the piece can reach now
+                    #nearside and farside locations must match for a valid move
+                    #Use target as location to evaluate for
+                    farside = self.pieces[i].distant_range(item[0],item[1],field)
+                    nearside = self.pieces[i].arange(field)
+                    #Valid location if piece.arange == piece.distant_range
+                    for x in range(len(farside)):
+                        for y in range(len(nearside)):
+                            if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
+                                #farside and nearside match, valid move
+                                coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                                print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
+                                self.pieces[i].act_move(farside[x][0], farside[x][1])
+                                return coordinates
 
         #Unable to check any piece, take a random move
         list_indicies = []
         for i in range(len(self.pieces)):
             list_indicies.append(i)
+        random.shuffle(list_indicies)
         move_available = False
         while not move_available:
             ptu = list_indicies[0]
@@ -956,7 +995,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
     def find_king(self):
         target = [0,0]
         for piece in self.pieces:
-            if piece.name == "wK":
+            if piece.name.lower() == "k":
                 target = [piece.xpos, piece.ypos]
                 return target
         raise Exception("King missing?")
@@ -1012,24 +1051,43 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
         #if condition falls through
         return False
 
+    def pawn_promote(self, field):
+        for i in range(len(self.pieces)):
+            #Check if a pawn is at the back
+            if self.pieces[i].name == "Q" and self.pieces[i].ypos == 7:
+                #keep its coordinates
+                y_spot = self.pieces[i].ypos
+                x_spot = self.pieces[i].xpos
+                print(f"Moving pawn located at ({x_spot}, {y_spot}).")
+                #Remove and reintroduce as queen
+                self.pieces.pop(i)
+                self.pieces.append(Queen(x_spot, y_spot, False))
+                #Swap last index and index prior, knowing they are the king and new queen
+                self.pieces[len(self.pieces)-2], self.pieces[len(self.pieces)-1] = self.pieces[len(self.pieces)-1], self.pieces[len(self.pieces)-2]
+                #Reassign the field queen to not break
+                field[x_spot][yy_spot] = "Q"
 
     def turn(self, field):
         #Search for highest value piece to take. If can't take, aim at highest in range next turn. If none in range, random move.
         #Don't need to check if king can be attacked, assumed not if game is going
         #Check for queen
-        target = field.find_piece("bQ")
-        if target:
-            if self.inattackrange(target[0][0], target[0][1], field):
-                attack_list = self.canattack(target[0][0], target[0][1], field)
-                #Piece to use, random from the available attackers
-                ptu = random.choice(attack_list)
-                coordinates = [[self.pieces[ptu].xpos, self.pieces[ptu].ypos], [target[0][0], target[0][1]]]
-                print(f'Moving {self.pieces[ptu].name} from ({self.pieces[ptu].xpos}, {self.pieces[ptu].ypos}) to ({target[0][0]}, {target[0][1]}).')
-                self.pieces[ptu].act_move(target[0][0], target[0][1])
-                return coordinates
+        target = field.find_piece("q")
+        if len(target) >0:
+            #Shuffle target to randomize target
+            random.shuffle(target)
+            #Check each piece through the list
+            for x in range(len(target)):
+                if self.inattackrange(target[x][0], target[x][1], field):
+                    attack_list = self.canattack(target[0][0], target[0][1], field)
+                    #Piece to use, random from the available attackers
+                    ptu = random.choice(attack_list)
+                    coordinates = [[self.pieces[ptu].xpos, self.pieces[ptu].ypos], [target[0][0], target[0][1]]]
+                    print(f'Moving {self.pieces[ptu].name} from ({self.pieces[ptu].xpos}, {self.pieces[ptu].ypos}) to ({target[0][0]}, {target[0][1]}).')
+                    self.pieces[ptu].act_move(target[0][0], target[0][1])
+                    return coordinates
         #Queen out of range, try to attack rook
-        target = field.find_piece("bR")
-        if target:
+        target = field.find_piece("r")
+        if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
             #Check each piece through the list
@@ -1043,9 +1101,9 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No rooks, sample both bishops and knights at the same time
-        target = field.find_piece("bB")
-        target.extend(field.find_piece("bN"))
-        if target:
+        target = field.find_piece("b")
+        target.extend(field.find_piece("n"))
+        if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
             #Check each piece through the list
@@ -1059,8 +1117,8 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No knights or bishops, pawns
-        target = field.find_piece("bP")
-        if target:
+        target = field.find_piece("p")
+        if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
             #Check each piece through the list
@@ -1075,9 +1133,9 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                     return coordinates
         #No pawns, try and check king
         #use piece's attack range from king's position?
-        target = field.find_piece("bK")
+        target = field.find_piece("k")
         #Iterates through pieces, lower value first
-        if target:
+        if len(target) >0:
             for i in range(len(self.pieces)):
                 #farside returns a two layer array containing the indicies that can attack target
                 #nearside returns a two layer array containing the indicies that the piece can reach now
@@ -1095,86 +1153,107 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                             print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
                             return coordinates
         #Falling through loop assumes unable to check king, check queen
-        target = field.find_piece("bQ")
+        target = field.find_piece("q")
         #Iterates through pieces, lower value first
-        if target:
-            for i in range(len(self.pieces)):
-                #farside returns a two layer array containing the indicies that can attack target
-                #nearside returns a two layer array containing the indicies that the piece can reach now
-                #nearside and farside locations must match for a valid move
-                #Use target as location to evaluate for
-                farside = self.pieces[i].distant_range(target[0][0],target[0][1],field)
-                nearside = self.pieces[i].arange(field)
-                #Valid location if piece.arange == piece.distant_range
-                for x in range(len(farside)):
-                    for y in range(len(nearside)):
-                        if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
-                            #farside and nearside match, valid move
-                            coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
-                            print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
-                            self.pieces[i].act_move(farside[x][0], farside[x][1])
-                            return coordinates
+        if len(target) >0:
+            #Shuffle target to randomize targeat
+            if(len(target) >1):
+                random.shuffle(target)
+            #Check each piece through the list
+            for item in target:
+                for i in range(len(self.pieces)):
+                    #farside returns a two layer array containing the indicies that can attack target
+                    #nearside returns a two layer array containing the indicies that the piece can reach now
+                    #nearside and farside locations must match for a valid move
+                    #Use target as location to evaluate for
+                    #print("target: ", len(target))
+                    #print("x: ",x)
+                    #print("pieces: ", len(self.pieces))
+                    #print("i: ", i)
+                    farside = self.pieces[i].distant_range(item[0],item[1],field)
+                    nearside = self.pieces[i].arange(field)
+                    #Valid location if piece.arange == piece.distant_range
+                    for x in range(len(farside)):
+                        for y in range(len(nearside)):
+                            if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
+                                #farside and nearside match, valid move
+                                coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                                print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
+                                self.pieces[i].act_move(farside[x][0], farside[x][1])
+                                return coordinates
         #Queen not checked, check rook?
-        target = field.find_piece("bR")
+        target = field.find_piece("r")
         #Iterates through pieces, lower value first
-        if target:
-            for i in range(len(self.pieces)):
-                #farside returns a two layer array containing the indicies that can attack target
-                #nearside returns a two layer array containing the indicies that the piece can reach now
-                #nearside and farside locations must match for a valid move
-                #Use target as location to evaluate for
-                farside = self.pieces[i].distant_range(target[0][0],target[0][1],field)
-                nearside = self.pieces[i].arange(field)
-                #Valid location if piece.arange == piece.distant_range
-                for x in range(len(farside)):
-                    for y in range(len(nearside)):
-                        if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
-                            #farside and nearside match, valid move
-                            coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
-                            print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
-                            self.pieces[i].act_move(farside[x][0], farside[x][1])
-                            return coordinates
+        if len(target) >0:
+            #Shuffle target to randomize target
+            random.shuffle(target)
+            #Check each piece through the list
+            for item in target:
+                for i in range(len(self.pieces)):
+                    #farside returns a two layer array containing the indicies that can attack target
+                    #nearside returns a two layer array containing the indicies that the piece can reach now
+                    #nearside and farside locations must match for a valid move
+                    #Use target as location to evaluate for
+                    farside = self.pieces[i].distant_range(item[0],item[1],field)
+                    nearside = self.pieces[i].arange(field)
+                    #Valid location if piece.arange == piece.distant_range
+                    for x in range(len(farside)):
+                        for y in range(len(nearside)):
+                            if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
+                                #farside and nearside match, valid move
+                                coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                                print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
+                                self.pieces[i].act_move(farside[x][0], farside[x][1])
+                                return coordinates
         #No rook, check bishop/knight?
-        target = field.find_piece("bB")
-        target.extend(field.find_piece("bN"))
+        target = field.find_piece("b")
+        target.extend(field.find_piece("n"))
         #Iterates through pieces, lower value first
-        if target:
-            for i in range(len(self.pieces)):
-                #farside returns a two layer array containing the indicies that can attack target
-                #nearside returns a two layer array containing the indicies that the piece can reach now
-                #nearside and farside locations must match for a valid move
-                #Use target as location to evaluate for
-                farside = self.pieces[i].distant_range(target[0][0],target[0][1],field)
-                nearside = self.pieces[i].arange(field)
-                #Valid location if piece.arange == piece.distant_range
-                for x in range(len(farside)):
-                    for y in range(len(nearside)):
-                        if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
-                            #farside and nearside match, valid move
-                            coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
-                            print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
-                            self.pieces[i].act_move(farside[x][0], farside[x][1])
-                            return coordinates
+        if len(target) >0:
+            #Shuffle target to randomize target
+            random.shuffle(target)
+            #Check each piece through the list
+            for item in target:
+                for i in range(len(self.pieces)):
+                    #farside returns a two layer array containing the indicies that can attack target
+                    #nearside returns a two layer array containing the indicies that the piece can reach now
+                    #nearside and farside locations must match for a valid move
+                    #Use target as location to evaluate for
+                    farside = self.pieces[i].distant_range(item[0],item[1],field)
+                    nearside = self.pieces[i].arange(field)
+                    #Valid location if piece.arange == piece.distant_range
+                    for x in range(len(farside)):
+                        for y in range(len(nearside)):
+                            if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
+                                #farside and nearside match, valid move
+                                coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                                print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
+                                self.pieces[i].act_move(farside[x][0], farside[x][1])
+                                return coordinates
         #No bishop/knight, pawns?
-        target = field.find_piece("bP")
+        target = field.find_piece("p")
         #Iterates through pieces, lower value first
-        if target:
-            for i in range(len(self.pieces)):
-                #farside returns a two layer array containing the indicies that can attack target
-                #nearside returns a two layer array containing the indicies that the piece can reach now
-                #nearside and farside locations must match for a valid move
-                #Use target as location to evaluate for
-                farside = self.pieces[i].distant_range(target[0][0],target[0][1],field)
-                nearside = self.pieces[i].arange(field)
-                #Valid location if piece.arange == piece.distant_range
-                for x in range(len(farside)):
-                    for y in range(len(nearside)):
-                        if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
-                            #farside and nearside match, valid move
-                            coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
-                            print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
-                            self.pieces[i].act_move(farside[x][0], farside[x][1])
-                            return coordinates
+        if len(target) >0:
+            #Shuffle target to randomize target
+            random.shuffle(target)
+            #Check each piece through the list
+            for item in target:
+                for i in range(len(self.pieces)):
+                    #farside returns a two layer array containing the indicies that can attack target
+                    #nearside returns a two layer array containing the indicies that the piece can reach now
+                    #nearside and farside locations must match for a valid move
+                    #Use target as location to evaluate for
+                    farside = self.pieces[i].distant_range(item[0],item[1],field)
+                    nearside = self.pieces[i].arange(field)
+                    #Valid location if piece.arange == piece.distant_range
+                    for x in range(len(farside)):
+                        for y in range(len(nearside)):
+                            if farside[x][0] == nearside[y][0] and farside[x][1] == nearside[y][1]:
+                                #farside and nearside match, valid move
+                                coordinates = [[self.pieces[i].xpos, self.pieces[i].ypos], [farside[x][0], farside[x][1]]]
+                                print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
+                                self.pieces[i].act_move(farside[x][0], farside[x][1])
+                                return coordinates
 
         #Unable to check any piece, take a random move
         list_indicies = []
@@ -1195,23 +1274,22 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
 
 
 
-
-david.init()
+p.init()
 WIDTH = HEIGHT = 512
-DIMENSION = 8  # 8x8
-SQ_SIZE = HEIGHT // DIMENSION
+DIMENSION = 8 #8x8
+SQ_SIZE = HEIGHT //DIMENSION
 MAX_FPS = 15
 IMAGES = {}
+
 '''
 Initialize a global dictionary of images. this will be call exactly once in main
 '''
 def loadImages():
     #IMAGES['wp'] = p.image.load("Images/P.png") #from folder images / 'the picture to use for that piece.'
-    #IMAGES['bp'] = p.image.load("Images/bP.png")
-    #pieces = ['P','R','N','B','K','Q', 'p','r','n','b','k','q']
-    pieces = ['wP', 'wR', 'wN', 'wB', 'wK', 'wQ', 'bP', 'bR', 'bN', 'bB', 'bK', 'bQ']
+    #IMAGES['bp'] = p.image.load("Images/bp.png")
+    pieces = ['P','R','N','B','K','Q', 'p','r','n','b','k','q']
     for piece in pieces:
-        IMAGES[piece] = david.transform.scale(david.image.load("Images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = p.transform.scale(p.image.load("Images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
 def drawGameState(screen, gs):  # this draws the squares on the board
     drawBoard(screen)
@@ -1221,11 +1299,11 @@ def drawGameState(screen, gs):  # this draws the squares on the board
 Draw squares on board
 '''
 def drawBoard(screen):
-    colors = [david.Color("white"), david.Color("gray")]
+    colors = [p.Color("white"), p.Color("gray")]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
             color = colors[((r + c) % 2)]
-            david.draw.rect(screen, color, david.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+            p.draw.rect(screen, color, p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
             # Don't draw pieces here just incase we want to implement highlighting
             # Extra loop isn't that expensive
 '''
@@ -1237,99 +1315,81 @@ def drawPieces(screen, board):
             piece = board[r][c]
             if piece != "_":  # not empty squares
                 screen.blit(IMAGES[piece],
-                            david.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))  # Puts the piece in for us
+                            p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))  # Puts the piece in for us
 
 
 class Game(Player, Opponent, Board):
-    david.init()
-    #screen = david.display.set_mode((WIDTH, HEIGHT))
-    #clock = david.time.Clock()
-    #screen.fill(david.Color("white"))
-    #gs = Board().boardstate
-    # print("Printing gs")
-    # print(gs)
-    # print("DONE PRINTING GS")
-    #loadImages()
-
-
     #Class for the board itself.
     def __init__(self):
         #Initialize pieces
         self.white = Player()
         self.black = Opponent()
+
         #initialize Board
         self.field = Board()
-        #initialize GUI
-        self.david_running = False
-        self.title = 'GUI of AI'
-        self.WIDTH = self.HEIGHT = 500
-        self.DIMENSION = 8
-        self.SQ_SIZE = self.HEIGHT // self.DIMENSION
-        self.MAX_FPS = 15
-        self.screen = david.display.set_mode((self.WIDTH, self.HEIGHT))
-        self.clock = david.time.Clock()
-        self.screen.fill(david.Color("white"))
-        self.gs = Board().boardstate
-        #David commented this for his own reading
-        #use piece arrays to occupy board
-    #    for piece in self.white.pieces:
-    #        self.field.boardstate[piece.xpos][piece.ypos] = piece.name
-    #    for piece in self.black.pieces:
-    #        self.field.boardstate[piece.xpos][piece.ypos] = piece.name
 
+        #use piece arrays to occupy board
+        for piece in self.white.pieces:
+            self.field.boardstate[piece.xpos][piece.ypos] = piece.name
+        for piece in self.black.pieces:
+            self.field.boardstate[piece.xpos][piece.ypos] = piece.name
 
     def play_game(self):
         w_check = False
         b_check = False
-        for y in range(0,8):
-            print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y],
-                  self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y],
-                  self.field.boardstate[6][y], self.field.boardstate[7][y])
+        for y in range(7,-1,-1):
+            print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
 
-        self.david_running = True
-        david.init()
-        david.display.set_caption(self.title)
-        self.screen = david.display.set_mode((self.WIDTH, self.HEIGHT))
-        self.screen.fill(david.Color("white"))
-        self.gs = self.field
-        loadImages()
+        #p.init()
+        #screen = p.display.set_mode((WIDTH, HEIGHT))
+        clock = p.time.Clock()
+        #screen.fill(p.Color("white"))
+        #gs = self.field.boardstate
+        #print("Printing gs")
+        #print(gs)
+        #print("DONE PRINTING GS")
+        #loadImages()
 
 
-        running = True
-        while running:
-            for event in david.event.get():
-                if event.type == david.QUIT:
-                    self.david_running = False
-                    running = False
-                    david.quit()
+
+
+        while True:
+
+
 
 
             # David's GUI logic;;;;;;;;;;;;;;issue is that the rest of this class is far to involved..
-            drawGameState(self.screen, self.gs.boardstate)
-            self.clock.tick(MAX_FPS)
-            #david.display.flip()#This will only do a move, maybe 2....
+            #drawGameState(screen, gs)
+            #clock.tick(MAX_FPS)
+            #p.display.flip()
 
-            #david.time.Clock()
-            #david.display.update() #Works with this at least
+
+
+
+
+
+
+
 
             #Engage Player turn
-            if not w_check: #Does this mean white not in check?
+            if not w_check:
                 spot = self.white.turn(self.field)
+                #throw pawn_promote to let it handle promtions
                 #Check for piece taken
                 for ind in range(len(self.black.pieces)):
                     if (self.black.pieces[ind].xpos == spot[1][0] and self.black.pieces[ind].ypos == spot[1][1]):
                         print(f'Claiming piece {self.black.pieces[ind].name} at ({spot[1][0]}, {spot[1][1]}).')
                         self.black.remove_piece(ind)
-                        break#these breaks break the GUI!!!!
+                        break
                 self.field.move_piece(spot)
-                for y in range(0,8): #8directions
-                    print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y],
-                          self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y],
-                          self.field.boardstate[6][y], self.field.boardstate[7][y])
+                self.white.pawn_promote
+                for y in range(7,-1,-1):
+                    print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
                 #Check for check
                 b_loc = self.black.find_king()
-                if self.white.inattackrange(b_loc[0], b_loc[1], self.field): #put bK in check
+                if self.white.inattackrange(b_loc[0], b_loc[1], self.field):
                     print("Black king in check!")
+                    b_check = True
                     escape = False
                     for x in range(-1,2):
                         for y in range(-1,2):
@@ -1343,10 +1403,11 @@ class Game(Player, Opponent, Board):
                                             break
                             if escape:
                                 break
-                    if not escape: #White Wins CheckMate
+                    if not escape:
                         print("Game over! White wins.")
                         return 0
-            else: #Black to move
+            else:
+                print("Entering white king check behavior.")
                 #Logic control for white to escape
                 b_range = self.black.attackrange(self.field)
                 w_loc = self.white.find_king()
@@ -1355,63 +1416,73 @@ class Game(Player, Opponent, Board):
                     if self.white.pieces[x].name == "K":
                         w_ind = x
                         break
-                for x in range(-1,2):
-                    if not w_check:
-                        break
-                    for y in range(-1,2):
-                        if x == 0 and y == 0:
-                            continue
+                b_checker = self.black.canattack(w_loc[0], w_loc[1], self.field)
+                if len(b_checker) == 1:
+                    w_range = self.white.canattack(self.black.pieces[b_checker[0]].xpos, self.black.pieces[b_checker[0]].ypos, self.field)
+                    if len(w_range) > 0:
+                        #Use index 0 for lowest value piece that can attack
+                        spot = [[self.white.pieces[w_range[0]].xpos, self.white.pieces[w_range[0]].ypos], [self.black.pieces[b_checker[0]].xpos, self.black.pieces[b_checker[0]].ypos]]
+                        print(f'Moving {self.white.pieces[w_range[0]].name} from ({spot[0][0]}, {spot[0][1]}) to ({spot[1][0]}, {spot[1][1]}).')
+                        self.white.pieces[w_range[0]].act_move(spot[1][0], spot[1][1])
+                        w_check = False
+                else:
+                    #Checked by more than one piece, try and move to escape instead
+                    for x in range(-1,2):
                         if not w_check:
                             break
                         else:
-                            if ((w_loc[0]+x) >= 0 and (w_loc[0]+x) <= 7):
-                                if((w_loc[1]+y) >= 0 and (w_loc[1]+y) <= 7):
-                                    if not b_range[w_loc[0]+x][w_loc[1]+y]:
-                                        print(f'Moving {self.white.pieces[w_ind].name} from ({self.white.pieces[w_ind].xpos}, '
-                                              f'{self.white.pieces[w_ind].ypos}) to ({w_loc[0]+x}, {w_loc[1]+y}).')
-
-                                        self.white.pieces[w_ind].act_move(w_loc[0]+x, w_loc[1]+y)
-                                        w_check = False
-                                        #Check for piece taken
-                                        for ind in range(len(self.black.pieces)):
-                                            if (self.black.pieces[ind].xpos == w_loc[0]+x and self.black.pieces[ind].ypos == w_loc[1]+y):
-                                                print(f'Claiming piece {self.black.pieces[ind].name} at ({w_loc[1]+y}, {w_loc[1]+y}).')
-                                                self.black.remove_piece(ind)
+                            for y in range(-1,2):
+                                if x == 0 and y == 0:
+                                    continue
+                                elif not w_check:
+                                    break
+                                else:
+                                    #Keep bounds in board
+                                    if ((w_loc[0]+x) >= 0 and (w_loc[0]+x) <= 7):
+                                        if((w_loc[1]+y) >= 0 and (w_loc[1]+y) <= 7):
+                                            if not b_range[w_loc[0]+x][w_loc[1]+y]:
+                                                spot = [[w_loc[0], w_loc[1]], [w_loc[0]+x, w_loc[1]+y]]
+                                                print(f'Moving {self.white.pieces[w_ind].name} from ({spot[0][0]}, {spot[0][1]}) to ({spot[1][0]}, {spot[1][1]}).')
+                                                self.white.pieces[w_ind].act_move(spot[1][0], spot[1][1])
+                                                w_check = False
                                                 break
-                                        self.field.move_piece([[w_loc[0], w_loc[1]],[w_loc[0]+x, w_loc[1]+y]])
-                                        for y in range(0,8):
-                                            print(self.field.boardstate[0][y], self.field.boardstate[1][y],
-                                                  self.field.boardstate[2][y], self.field.boardstate[3][y],
-                                                  self.field.boardstate[4][y], self.field.boardstate[5][y],
-                                                  self.field.boardstate[6][y], self.field.boardstate[7][y])
-                                        #Check for check
-                                        b_loc = self.black.find_king()
-                                        if self.white.inattackrange(b_loc[0], b_loc[1], self.field):
-                                            print("Black king in check!")
-                                            b_check = True
-                                            escape = False
-                                            for x in range(-1,2):
-                                                for y in range(-1,2):
-                                                    if x == 0 and y == 0:
-                                                        continue
-                                                    else:
-                                                        if ((b_loc[0]+x) >= 0 and (b_loc[0]+x) <= 7):
-                                                            if((b_loc[1]+y) >= 0 and (b_loc[1]+y) <= 7):
-                                                                if not self.white.inattackrange(b_loc[0]+x, b_loc[1]+y, self.field):
-                                                                    escape = True
-                                                                    break
-                                                    if escape:
-                                                        break
-                                            if not escape:
-                                                print("Game over! White wins.")
-                                                return 0
+                print(f"spot is ({spot[0][0]}, {spot[0][1]}) to ({spot[1][0]}, {spot[1][1]}).")
+                for ind in range(len(self.black.pieces)):
+                    if (self.black.pieces[ind].xpos == spot[1][0] and self.black.pieces[ind].ypos == spot[1][1]):
+                        print(f'Claiming piece {self.black.pieces[ind].name} at ({spot[1][0]}, {spot[1][1]}).')
+                        self.black.remove_piece(ind)
+                        break
+                self.field.move_piece(spot)
+                self.white.pawn_promote
+                for y in range(7,-1,-1):
+                    print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
+                #Check for check
+                b_loc = self.black.find_king()
+                if self.white.inattackrange(b_loc[0], b_loc[1], self.field):
+                    print("Black king in check!")
+                    b_check = True
+                    escape = False
+                    for x in range(-1,2):
+                        for y in range(-1,2):
+                            if x == 0 and y == 0:
+                                continue
+                            else:
+                                if ((b_loc[0]+x) >= 0 and (b_loc[0]+x) <= 7):
+                                    if((b_loc[1]+y) >= 0 and (b_loc[1]+y) <= 7):
+                                        if not self.white.inattackrange(b_loc[0]+x, b_loc[1]+y, self.field):
+                                            escape = True
+                                            break
+                            if escape:
+                                break
+                    if not escape:
+                        print("Game over! White wins.")
+                        return 0
             #Check if black can move at all
             if not self.black.can_move(self.field):
                 print("Game over! Black can't move, thus stalemate.")
             #Engage Opponent turn
             #time.sleep(1)
             input("Press Enter to continue...")
-            drawGameState(self.screen, self.gs.boardstate)
             if not b_check:
                 spot = self.black.turn(self.field)
                 #Check for piece taken
@@ -1421,12 +1492,14 @@ class Game(Player, Opponent, Board):
                         self.white.remove_piece(ind)
                         break
                 self.field.move_piece(spot)
+                self.black.pawn_promote
                 #Check for check
-                for y in range(0,8):
+                for y in range(7,-1,-1):
                     print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
                 w_loc = self.white.find_king()
                 if self.black.inattackrange(w_loc[0], w_loc[1], self.field):
                     print("White king in check!")
+                    w_check = True
                     escape = False
                     for x in range(-1,2):
                         for y in range(-1,2):
@@ -1445,6 +1518,7 @@ class Game(Player, Opponent, Board):
                         return 0
             else:
                 #Logic control for black to escape
+                print("Entering black king check behavior")
                 w_range = self.white.attackrange(self.field)
                 b_loc = self.black.find_king()
                 b_ind = -1
@@ -1452,110 +1526,75 @@ class Game(Player, Opponent, Board):
                     if self.black.pieces[x].name == "k":
                         b_ind = x
                         break
-                for x in range(-1,2):
-                    if not b_check:
-                        break
-                    for y in range(-1,2):
-                        if x == 0 and y == 0:
-                            continue
+                w_checker = self.white.canattack(b_loc[0], b_loc[1], self.field)
+                if len(w_checker) == 1:
+                    b_range = self.black.canattack(self.white.pieces[w_checker[0]].xpos, self.white.pieces[w_checker[0]].ypos, self.field)
+                    if len(b_range) > 0:
+                        #Use index 0 for lowest value piece that can attack
+                        spot = [[self.black.pieces[b_range[0]].xpos, self.black.pieces[b_range[0]].ypos], [self.white.pieces[w_checker[0]].xpos, self.white.pieces[w_checker[0]].ypos]]
+                        print(f'Moving {self.black.pieces[b_range[0]].name} from ({spot[0][0]}, {spot[0][1]}) to ({spot[1][0]}, {spot[1][1]}).')
+                        self.black.pieces[b_range[0]].act_move(spot[1][0], spot[1][1])
+                        b_check = False
+                else:
+                    #Checked by more than one piece, try and move to escape instead
+                    for x in range(-1,2):
                         if not b_check:
                             break
                         else:
-                            if ((b_loc[0]+x) >= 0 and (b_loc[0]+x) <= 7):
-                                if((b_loc[1]+y) >= 0 and (b_loc[1]+y) <= 7):
-                                    if not w_range[b_loc[0]+x][b_loc[1]+y]:
-                                        print(f'Moving {self.black.pieces[b_ind].name} from ({self.black.pieces[b_ind].xpos}, {self.black.pieces[b_ind].ypos}) to ({b_loc[0]+x}, {b_loc[1]+y}).')
-                                        self.black.pieces[b_ind].act_move(b_loc[0]+x, b_loc[1]+y)
-                                        b_check = False
-                                        #Check for piece taken
-                                        for ind in range(len(self.white.pieces)):
-                                            if (self.white.pieces[ind].xpos == b_loc[0]+x and self.black.pieces[ind].ypos == b_loc[1]+y):
-                                                print(f'Claiming piece {self.white.pieces[ind].name} at ({b_loc[0]+x}, {b_loc[1]+y}).')
-                                                self.black.remove_piece(ind)
+                            for y in range(-1,2):
+                                if x == 0 and y == 0:
+                                    continue
+                                elif not b_check:
+                                    break
+                                else:
+                                    #Keep bounds in board
+                                    if ((b_loc[0]+x) >= 0 and (b_loc[0]+x) <= 7):
+                                        if((b_loc[1]+y) >= 0 and (b_loc[1]+y) <= 7):
+                                            if not b_range[b_loc[0]+x][b_loc[1]+y]:
+                                                spot = [[b_loc[0], b_loc[1]], [b_loc[0]+x, b_loc[1]+y]]
+                                                print(f'Moving {self.black.pieces[b_ind].name} from ({spot[0][0]}, {spot[0][1]}) to ({spot[1][0]}, {spot[1][1]}).')
+                                                self.black.pieces[b_ind].act_move(spot[1][0], spot[1][1])
+                                                b_check = False
                                                 break
-                                        self.field.move_piece([[b_loc[0], b_loc[1]],[b_loc[0]+x, b_loc[1]+y]])
-                                        for y in range(0,8):
-                                            print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
-                                        #Check for check
-                                        b_loc = self.black.find_king()
-                                        if self.white.inattackrange(b_loc[0], b_loc[1], self.field):
-                                            print("Black king in check!")
-                                            b_check = True
-                                            escape = False
-                                            for x in range(-1,2):
-                                                for y in range(-1,2):
-                                                    if x == 0 and y == 0:
-                                                        continue
-                                                    else:
-                                                        if ((b_loc[0]+x) >= 0 and (b_loc[0]+x) <= 7):
-                                                            if((b_loc[1]+y) >= 0 and (b_loc[1]+y) <= 7):
-                                                                if not self.white.inattackrange(b_loc[0]+x, b_loc[1]+y, self.field):
-                                                                    escape = True
-                                                                    break
-                                                    if escape:
-                                                        break
-                                            if not escape:
-                                                print("Game over! White wins.")
-                                                return 0
+                #Check for piece taken
+                print(f"spot is ({spot[0][0]}, {spot[0][1]}) to ({spot[1][0]}, {spot[1][1]}).")
+                for ind in range(len(self.white.pieces)):
+                    if (self.white.pieces[ind].xpos == spot[1][0] and self.white.pieces[ind].ypos == spot[1][1]):
+                        print(f'Claiming piece {self.white.pieces[ind].name} at ({spot[1][0]}, {spot[1][1]}).')
+                        self.white.remove_piece(ind)
+                        break
+                self.field.move_piece(spot)
+                self.black.pawn_promote
+                #Check for check
+                for y in range(7,-1,-1):
+                    print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
+                w_loc = self.white.find_king()
+                if self.black.inattackrange(w_loc[0], w_loc[1], self.field):
+                    print("White king in check!")
+                    w_check = True
+                    escape = False
+                    for x in range(-1,2):
+                        for y in range(-1,2):
+                            if x == 0 and y == 0:
+                                continue
+                            else:
+                                if ((w_loc[0]+x) >= 0 and (w_loc[0]+x) <= 7):
+                                    if((w_loc[1]+y) >= 0 and (w_loc[1]+y) <= 7):
+                                        if not self.white.inattackrange(w_loc[0]+x, w_loc[1]+y, self.field):
+                                            escape = True
+                                            break
+                            if escape:
+                                break
+                    if not escape:
+                        print("Game over! Black wins.")
+                        return 0
             #Check if white can move at all
             if not self.white.can_move(self.field):
                 print("Game over! White can't move, thus stalemate.")
             input("Press Enter to continue...")
             #time.sleep(1)
-
-            drawGameState(self.screen, self.gs.boardstate)
-            self.clock.tick(MAX_FPS)
-            david.display.flip()
-
         print("You shouldn't be here.")
         return 0
-
-
-
-    ############## David Stuff
-    '''
-    Initialize a global dictionary of images. this will be call exactly once in main
-    '''
-
-    def loadImages(self):
-        # IMAGES['wp'] = p.image.load("Images/P.png") #from folder images / 'the picture to use for that piece.'
-        # IMAGES['bp'] = p.image.load("Images/bP.png")
-        # pieces = ['P','R','N','B','K','Q', 'p','r','n','b','k','q']
-        pieces = ['wP', 'wR', 'wN', 'wB', 'wK', 'wQ', 'bP', 'bR', 'bN', 'bB', 'bK', 'bQ']
-        for piece in pieces:
-            IMAGES[piece] = david.transform.scale(david.image.load("Images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
-
-    def drawGameState(screen, gs):  # this draws the squares on the board
-        drawBoard(screen)
-        # add piece highlighting or move suggestions (later?)
-        drawPieces(screen, gs)  # draw pieces on the squares
-
-    '''
-    Draw squares on board
-    '''
-
-    def drawBoard(screen):
-        colors = [david.Color("white"), david.Color("gray")]
-        for r in range(DIMENSION):
-            for c in range(DIMENSION):
-                color = colors[((r + c) % 2)]
-                david.draw.rect(screen, color, david.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
-                # Don't draw pieces here just incase we want to implement highlighting
-                # Extra loop isn't that expensive
-
-    '''
-    Draw pieces on board using current GameState.board
-    '''
-
-    def drawPieces(screen, board):
-        for r in range(DIMENSION):
-            for c in range(DIMENSION):
-                piece = board[r][c]
-                if piece != "_":  # not empty squares
-                    screen.blit(IMAGES[piece],
-                                david.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))  # Puts the piece in for us
-
-
 
 def main():
     testgame = Game()
