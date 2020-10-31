@@ -1,0 +1,7 @@
+Todos:
+Stick AI player into DavidChessEngine
+Reinsert David check behavior
+Create model of machine learning strategy
+After, create testing chess form to test with (Use without GUI for speed)
+Create machine learning program file to create weights from
+Use machine learning file to test weights and generate desired weights
