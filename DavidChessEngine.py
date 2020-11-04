@@ -66,11 +66,11 @@ class GameState():
 
         #enpassant move
         if move.isEnpassantMove:
-            self.board[move.startRow][move.endCol] == '--' #capturing pawn
+            self.board[move.startRow][move.endCol] = '--' #capturing pawn
 
         #update enpassantPoss var
-        if move.pieceMoved[1] == 'p' and abs(move.startRow - move.endRow) == 2: #only 2 squaare pawn advances
-            self.enpassantPossible = ((move.startRow + move.endRow)//2, move.endCol)#integer divsision; that's whay divide with '//'
+        if move.pieceMoved[1] == 'p' and abs(move.startRow - move.endRow) == 2: #only 2 square pawn advances
+            self.enpassantPossible = ((move.startRow + move.endRow)//2, move.endCol)#integer divsision; hints '//'
         else:
             self.enpassantPossible = ()
 
@@ -242,10 +242,10 @@ class GameState():
                 elif (r-1,c-1) == self.enpassantPossible:
                     moves.append(Move((r, c), (r - 1, c - 1), self.board, isEnpassantMove=True))
             if c+1 <= 7: #capture to right
-                if self.board[r-1][c+1] == 'b': #enemy to capture
+                if self.board[r-1][c+1][0] == 'b': #enemy to capture
                     moves.append(Move((r,c), (r-1, c+1), self.board))
                 elif (r-1,c+1) == self.enpassantPossible:
-                    moves.append(Move((r, c), (r - 1, c + 1), self.board, isEnpassantMove=True))
+                    moves.append(Move((r, c), (r-1, c+1), self.board, isEnpassantMove=True))
         else: #black pawn moves
             if self.board[r+1][c] == "--": #1 square advance
                 moves.append(Move( (r,c), (r+1, c), self.board) )
@@ -262,7 +262,7 @@ class GameState():
                 elif (r+1,c+1) == self.enpassantPossible:
                     moves.append(Move((r, c), (r + 1, c + 1), self.board, isEnpassantMove=True))
     '''
-        Get all Rook moves for the pawn located at row, col and add these moves to the list
+    Get all Rook moves for the pawn located at row, col and add these moves to the list
     '''
     def getRookMoves(self, r, c, moves):
         directions = ((-1,0), (0,-1), (1,0), (0,1))
@@ -376,7 +376,7 @@ class Move():
             self.pieceCaptured = 'wp' if self.pieceMoved == 'bp' else 'bp'
         #CastleMove
         self.isCastleMove = isCastleMove
-        #rint(self.moveID)
+        #print(self.moveID)
 
     def getChessNotation(self):#This can be used to translate to the ARM
         return self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol)

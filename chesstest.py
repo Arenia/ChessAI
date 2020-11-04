@@ -3,7 +3,7 @@ import time
 import random
 import DavidBoard
 import DavidChessEngine
-import pygame as p
+import pygame as david
 
 #Todos: fix check behavior, implement pawn promotion and sorting of piece set by value
 #Piece sort may be unnecessary given the swap being inserted
@@ -17,6 +17,8 @@ class ChessPiece:
     def act_move(self, tar_xpos, tar_ypos):
         self.ypos = tar_ypos
         self.xpos = tar_xpos
+        david.display.update()
+
 
 class Board:
     def __init__(self):
@@ -52,6 +54,7 @@ class Board:
         #Moves a piece from the coordinates given in a turn. Overwrites the target location, piece removal handled by Player classes.
         self.boardstate[spot[1][0]][spot[1][1]] = self.boardstate[spot[0][0]][spot[0][1]]
         self.boardstate[spot[0][0]][spot[0][1]] = "_"
+        david.display.update()
 
     def find_piece(self, identifier):
         collection = []
@@ -69,9 +72,9 @@ class King(ChessPiece):
         #Value is set exceptionally high to disregard other attack attempts
         self.value = 999999
         if side:
-            self.name = "K"
+            self.name = "wK"
         else:
-            self.name = "k"
+            self.name = "bK"
 
     def distant_range(self, tar_xpos, tar_ypos, field):
         #use passed target as the location of the piece
@@ -111,9 +114,9 @@ class Rook(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 5
         if side:
-            self.name = "R"
+            self.name = "wR"
         else:
-            self.name = "r"
+            self.name = "bR"
 
     def distant_range(self, tar_xpos, tar_ypos, field):
         #use passed target as the location of the piece
@@ -216,9 +219,9 @@ class Knight(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 3
         if side:
-            self.name = "N"
+            self.name = "wN"
         else:
-            self.name = "n"
+            self.name = "bN"
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
         x_dis = abs(self.xpos - tar_xpos)
@@ -257,9 +260,9 @@ class Bishop(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 3
         if side:
-            self.name = "B"
+            self.name = "wB"
         else:
-            self.name = "b"
+            self.name = "bB"
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
         if (field.boardstate[tar_xpos][tar_ypos].isupper() != self.name.isupper()) or (field.boardstate[tar_xpos][tar_ypos] == "_"):
@@ -384,9 +387,9 @@ class Queen(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 9
         if side:
-            self.name = "Q"
+            self.name = "wQ"
         else:
-            self.name = "q"
+            self.name = "bQ"
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
         #Negative distance means targeting to the up-left
@@ -548,9 +551,9 @@ class BlackPawn(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 1
         if side:
-            self.name = "P"
+            self.name = "wP"
         else:
-            self.name = "p"
+            self.name = "bP"
 
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
@@ -559,7 +562,7 @@ class BlackPawn(ChessPiece):
                 return True
             elif ((self.xpos == tar_xpos+1) or (self.xpos == tar_xpos-1)):
                 type = field.boardstate[tar_xpos][tar_ypos]
-                if type == "Q" or type == "K" or type == "P" or type == "B" or type == "N" or type == "R":
+                if type == "wQ" or type == "wK" or type == "wP" or type == "wB" or type == "wN" or type == "wR":
                     return True
         return False
 
@@ -574,7 +577,7 @@ class BlackPawn(ChessPiece):
                         targets.append([a, b])
                     elif ((tar_xpos == a+1) or (tar_xpos == a-1)):
                         type = field.boardstate[a][b]
-                        if type == "Q" or type == "K" or type == "P" or type == "B" or type == "N" or type == "R":
+                        if type == "wQ" or type == "wK" or type == "wP" or type == "wB" or type == "wN" or type == "wR":
                             targets.append([a, b])
         return targets
 
@@ -594,9 +597,9 @@ class WhitePawn(ChessPiece):
         ChessPiece.__init__(self, xcod, ycod)
         self.value = 1
         if side:
-            self.name = "P"
+            self.name = "wP"
         else:
-            self.name = "p"
+            self.name = "bP"
 
     def move_attempt(self, tar_xpos, tar_ypos, field):
         if (self.ypos == tar_ypos+1):
@@ -604,7 +607,7 @@ class WhitePawn(ChessPiece):
                 return True
             elif ((self.xpos == tar_xpos+1) or (self.xpos == tar_xpos-1)):
                 type = field.boardstate[tar_xpos][tar_ypos]
-                if type == "q" or type == "k" or type == "p" or type == "b" or type == "n" or type == "r":
+                if type == "bQ" or type == "bK" or type == "bP" or type == "bB" or type == "bN" or type == "bR":
                     return True
         return False
 
@@ -619,7 +622,7 @@ class WhitePawn(ChessPiece):
                         targets.append([a, b])
                     elif ((tar_xpos == a+1) or (tar_xpos == a-1)):
                         type = field.boardstate[tar_xpos][tar_ypos]
-                        if type == "q" or type == "k" or type == "p" or type == "b" or type == "n" or type == "r":
+                        if type == "bQ" or type == "bK" or type == "bP" or type == "bB" or type == "bN" or type == "bR":
                             targets.append([a, b])
         return targets
 
@@ -666,7 +669,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
 
     def find_king(self):
         for piece in self.pieces:
-            if piece.name.lower() == "k":
+            if piece.name.lower() == "bK":
                 target = [piece.xpos, piece.ypos]
                 return target
         raise Exception("King missing?")
@@ -730,7 +733,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
     def pawn_promote(self, field):
         for i in range(len(self.pieces)):
             #Check if a pawn is at the back
-            if self.pieces[i].name == "p" and self.pieces[i].ypos == 0:
+            if self.pieces[i].name == "bP" and self.pieces[i].ypos == 0:
                 #keep its coordinates
                 y_spot = self.pieces[i].ypos
                 x_spot = self.pieces[i].xpos
@@ -741,13 +744,13 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                 #Swap last index and index prior, knowing they are the king and new queen
                 self.pieces[len(self.pieces)-2], self.pieces[len(self.pieces)-1] = self.pieces[len(self.pieces)-1], self.pieces[len(self.pieces)-2]
                 #Reassign the field queen to not break
-                field[x_spot][yy_spot] = "q"
+                field[x_spot][yy_spot] = "bQ"
 
     def turn(self, field):
         #Search for highest value piece to take. If can't take, aim at highest in range next turn. If none in range, random move.
         #Don't need to check if king can be attacked, assumed not if game is going
         #Check for queen
-        target = field.find_piece("Q")
+        target = field.find_piece("wQ")
         #print("Queen attack check")
         if len(target) >0:
             #Shuffle target to randomize target
@@ -763,7 +766,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[0][0], target[0][1])
                     return coordinates
         #Queen out of range, try to attack rook
-        target = field.find_piece("R")
+        target = field.find_piece("wR")
         #print("Rook attack check")
         if len(target) >0:
             #Shuffle target to randomize target
@@ -779,8 +782,8 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No rooks, sample both bishops and knights at the same time
-        target = field.find_piece("B")
-        target.extend(field.find_piece("N"))
+        target = field.find_piece("wB")
+        target.extend(field.find_piece("wN"))
         #print("Bishop and knight attack check")
         if len(target) >0:
             #Shuffle target to randomize target
@@ -799,7 +802,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No knights or bishops, pawns
-        target = field.find_piece("P")
+        target = field.find_piece("wP")
         #print("Pawn attack check")
         if len(target) >0:
             #Shuffle target to randomize target
@@ -816,7 +819,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                     return coordinates
         #No pawns, try and check king
         #use piece's attack range from king's position?
-        target = field.find_piece("K")
+        target = field.find_piece("wK")
         #Iterates through pieces, lower value first
         if len(target) >0:
             for i in range(len(self.pieces)):
@@ -836,7 +839,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                             print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
                             return coordinates
         #Falling through loop assumes unable to check king, check queen
-        target = field.find_piece("Q")
+        target = field.find_piece("wQ")
         #Iterates through pieces, lower value first
         if len(target) >0:
             #Shuffle target to randomize target
@@ -860,7 +863,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                                 self.pieces[i].act_move(farside[x][0], farside[x][1])
                                 return coordinates
         #Queen not checked, check rook?
-        target = field.find_piece("R")
+        target = field.find_piece("wR")
         #Iterates through pieces, lower value first
         if len(target) >0:
             #Shuffle target to randomize target
@@ -884,8 +887,8 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                                 self.pieces[i].act_move(farside[x][0], farside[x][1])
                                 return coordinates
         #No rook, check bishop/knight?
-        target = field.find_piece("B")
-        target.extend(field.find_piece("N"))
+        target = field.find_piece("wB")
+        target.extend(field.find_piece("wN"))
         #Iterates through pieces, lower value first
         if len(target) >0:
             #Shuffle target to randomize target
@@ -909,7 +912,7 @@ class Opponent(Board, BlackPawn, Bishop, Knight, Rook, King, Queen):
                                 self.pieces[i].act_move(farside[x][0], farside[x][1])
                                 return coordinates
         #No bishop/knight, pawns?
-        target = field.find_piece("P")
+        target = field.find_piece("wP")
         #Iterates through pieces, lower value first
         if len(target) >0:
             #Shuffle target to randomize target
@@ -995,7 +998,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
     def find_king(self):
         target = [0,0]
         for piece in self.pieces:
-            if piece.name.lower() == "k":
+            if piece.name.lower() == "wK":
                 target = [piece.xpos, piece.ypos]
                 return target
         raise Exception("King missing?")
@@ -1054,7 +1057,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
     def pawn_promote(self, field):
         for i in range(len(self.pieces)):
             #Check if a pawn is at the back
-            if self.pieces[i].name == "Q" and self.pieces[i].ypos == 7:
+            if self.pieces[i].name == "wP" and self.pieces[i].ypos == 7:
                 #keep its coordinates
                 y_spot = self.pieces[i].ypos
                 x_spot = self.pieces[i].xpos
@@ -1065,13 +1068,13 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                 #Swap last index and index prior, knowing they are the king and new queen
                 self.pieces[len(self.pieces)-2], self.pieces[len(self.pieces)-1] = self.pieces[len(self.pieces)-1], self.pieces[len(self.pieces)-2]
                 #Reassign the field queen to not break
-                field[x_spot][yy_spot] = "Q"
+                field[x_spot][yy_spot] = "wQ"
 
     def turn(self, field):
         #Search for highest value piece to take. If can't take, aim at highest in range next turn. If none in range, random move.
         #Don't need to check if king can be attacked, assumed not if game is going
         #Check for queen
-        target = field.find_piece("q")
+        target = field.find_piece("bQ")
         if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
@@ -1086,7 +1089,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[0][0], target[0][1])
                     return coordinates
         #Queen out of range, try to attack rook
-        target = field.find_piece("r")
+        target = field.find_piece("bR")
         if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
@@ -1101,8 +1104,8 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No rooks, sample both bishops and knights at the same time
-        target = field.find_piece("b")
-        target.extend(field.find_piece("n"))
+        target = field.find_piece("bB")
+        target.extend(field.find_piece("bN"))
         if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
@@ -1117,7 +1120,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                     self.pieces[ptu].act_move(target[x][0], target[x][1])
                     return coordinates
         #No knights or bishops, pawns
-        target = field.find_piece("p")
+        target = field.find_piece("bP")
         if len(target) >0:
             #Shuffle target to randomize target
             random.shuffle(target)
@@ -1133,7 +1136,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                     return coordinates
         #No pawns, try and check king
         #use piece's attack range from king's position?
-        target = field.find_piece("k")
+        target = field.find_piece("bK")
         #Iterates through pieces, lower value first
         if len(target) >0:
             for i in range(len(self.pieces)):
@@ -1153,7 +1156,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                             print(f'Moving {self.pieces[i].name} from ({self.pieces[i].xpos}, {self.pieces[i].ypos}) to ({farside[x][0]}, {farside[x][1]}).')
                             return coordinates
         #Falling through loop assumes unable to check king, check queen
-        target = field.find_piece("q")
+        target = field.find_piece("bQ")
         #Iterates through pieces, lower value first
         if len(target) >0:
             #Shuffle target to randomize targeat
@@ -1182,7 +1185,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                                 self.pieces[i].act_move(farside[x][0], farside[x][1])
                                 return coordinates
         #Queen not checked, check rook?
-        target = field.find_piece("r")
+        target = field.find_piece("bR")
         #Iterates through pieces, lower value first
         if len(target) >0:
             #Shuffle target to randomize target
@@ -1206,8 +1209,8 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                                 self.pieces[i].act_move(farside[x][0], farside[x][1])
                                 return coordinates
         #No rook, check bishop/knight?
-        target = field.find_piece("b")
-        target.extend(field.find_piece("n"))
+        target = field.find_piece("bB")
+        target.extend(field.find_piece("bN"))
         #Iterates through pieces, lower value first
         if len(target) >0:
             #Shuffle target to randomize target
@@ -1231,7 +1234,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
                                 self.pieces[i].act_move(farside[x][0], farside[x][1])
                                 return coordinates
         #No bishop/knight, pawns?
-        target = field.find_piece("p")
+        target = field.find_piece("bP")
         #Iterates through pieces, lower value first
         if len(target) >0:
             #Shuffle target to randomize target
@@ -1274,7 +1277,7 @@ class Player(Board, WhitePawn, Bishop, Knight, Rook, King, Queen):
 
 
 
-p.init()
+david.init()
 WIDTH = HEIGHT = 512
 DIMENSION = 8 #8x8
 SQ_SIZE = HEIGHT //DIMENSION
@@ -1287,9 +1290,9 @@ Initialize a global dictionary of images. this will be call exactly once in main
 def loadImages():
     #IMAGES['wp'] = p.image.load("Images/P.png") #from folder images / 'the picture to use for that piece.'
     #IMAGES['bp'] = p.image.load("Images/bp.png")
-    pieces = ['P','R','N','B','K','Q', 'p','r','n','b','k','q']
+    pieces = ['wP', 'wR', 'wN', 'wB', 'wK', 'wQ', 'bP', 'bR', 'bN', 'bB', 'bK', 'bQ']
     for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load("Images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = david.transform.scale(david.image.load("Images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
 def drawGameState(screen, gs):  # this draws the squares on the board
     drawBoard(screen)
@@ -1299,11 +1302,11 @@ def drawGameState(screen, gs):  # this draws the squares on the board
 Draw squares on board
 '''
 def drawBoard(screen):
-    colors = [p.Color("white"), p.Color("gray")]
+    colors = [david.Color("white"), david.Color("gray")]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
             color = colors[((r + c) % 2)]
-            p.draw.rect(screen, color, p.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+            david.draw.rect(screen, color, david.Rect(c * SQ_SIZE, r * SQ_SIZE, SQ_SIZE, SQ_SIZE))
             # Don't draw pieces here just incase we want to implement highlighting
             # Extra loop isn't that expensive
 '''
@@ -1324,25 +1327,39 @@ class Game(Player, Opponent, Board):
         #Initialize pieces
         self.white = Player()
         self.black = Opponent()
-
         #initialize Board
         self.field = Board()
+        #initialize GUI
+        self.david_running = False
+        self.title = 'GUI of AI'
+        self.WIDTH = self.HEIGHT = 500
+        self.DIMENSION = 8
+        self.SQ_SIZE = self.HEIGHT // self.DIMENSION
+        self.MAX_FPS = 15
+        self.screen = david.display.set_mode((self.WIDTH, self.HEIGHT))
+        self.clock = david.time.Clock()
+        self.screen.fill(david.Color("white"))
+        self.gs = Board().boardstate
+
+
 
         #use piece arrays to occupy board
-        for piece in self.white.pieces:
-            self.field.boardstate[piece.xpos][piece.ypos] = piece.name
         for piece in self.black.pieces:
             self.field.boardstate[piece.xpos][piece.ypos] = piece.name
+        for piece in self.white.pieces:
+            self.field.boardstate[piece.xpos][piece.ypos] = piece.name
+
 
     def play_game(self):
         w_check = False
         b_check = False
         for y in range(7,-1,-1):
-            print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
+            print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y],
+			self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
 
         #p.init()
         #screen = p.display.set_mode((WIDTH, HEIGHT))
-        clock = p.time.Clock()
+        clock = david.time.Clock()
         #screen.fill(p.Color("white"))
         #gs = self.field.boardstate
         #print("Printing gs")
@@ -1352,8 +1369,8 @@ class Game(Player, Opponent, Board):
 
 
 
-
-        while True:
+        running = True
+        while running:
 
 
 
@@ -1363,8 +1380,18 @@ class Game(Player, Opponent, Board):
             #clock.tick(MAX_FPS)
             #p.display.flip()
 
+            for event in david.event.get():
+                if event.type == david.QUIT:
+                    self.david_running = False
+                    running = False
+                    david.quit()
 
 
+			
+
+			# David's GUI logic;;;;;;;;;;;;;;issue is that the rest of this class is far to involved..
+            drawGameState(self.screen, self.gs)
+            self.clock.tick(MAX_FPS)
 
 
 
@@ -1382,9 +1409,15 @@ class Game(Player, Opponent, Board):
                         self.black.remove_piece(ind)
                         break
                 self.field.move_piece(spot)
+
+
+                drawGameState(self.screen, self.gs)
+
+
                 self.white.pawn_promote
                 for y in range(7,-1,-1):
-                    print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
+                    print(self.field.boardstate[0][y], self.field.boardstate[1][y], self.field.boardstate[2][y], self.field.boardstate[3][y], self.field.boardstate[4][y], 
+					self.field.boardstate[5][y], self.field.boardstate[6][y], self.field.boardstate[7][y])
                 #Check for check
                 b_loc = self.black.find_king()
                 if self.white.inattackrange(b_loc[0], b_loc[1], self.field):
@@ -1413,7 +1446,7 @@ class Game(Player, Opponent, Board):
                 w_loc = self.white.find_king()
                 w_ind = -1
                 for x in range(len(self.white.pieces)):
-                    if self.white.pieces[x].name == "K":
+                    if self.white.pieces[x].name == "bK":
                         w_ind = x
                         break
                 b_checker = self.black.canattack(w_loc[0], w_loc[1], self.field)
@@ -1481,6 +1514,9 @@ class Game(Player, Opponent, Board):
             if not self.black.can_move(self.field):
                 print("Game over! Black can't move, thus stalemate.")
             #Engage Opponent turn
+
+            drawGameState(self.screen, self.gs.boardstate)
+
             #time.sleep(1)
             input("Press Enter to continue...")
             if not b_check:
@@ -1523,7 +1559,7 @@ class Game(Player, Opponent, Board):
                 b_loc = self.black.find_king()
                 b_ind = -1
                 for x in range(len(self.black.pieces)):
-                    if self.black.pieces[x].name == "k":
+                    if self.black.pieces[x].name == "wK":
                         b_ind = x
                         break
                 w_checker = self.white.canattack(b_loc[0], b_loc[1], self.field)
@@ -1588,11 +1624,20 @@ class Game(Player, Opponent, Board):
                     if not escape:
                         print("Game over! Black wins.")
                         return 0
+
+
+
+
             #Check if white can move at all
             if not self.white.can_move(self.field):
                 print("Game over! White can't move, thus stalemate.")
+            drawGameState(self.screen, self.gs.boardstate)
             input("Press Enter to continue...")
             #time.sleep(1)
+
+            drawGameState(self.screen, self.gs.boardstate)
+            self.clock.tick(MAX_FPS)
+            david.display.flip()
         print("You shouldn't be here.")
         return 0
 
