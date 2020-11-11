@@ -6,12 +6,12 @@
 
 #class AI():
 	# All THIS
-	# Get all pieces and give values 
+	# Get all pieces and give values
 
 
 
 #class ComputerPlayer():
-	#Best 
+	#Best
 
 
 
@@ -111,9 +111,9 @@ class GameState():
                     self.currentCastleingRights.bks = False
 
     def getValidMoves(self):
-        for log in self.castleRightsLog:
-            print(log.wks, log.wqs, log.bks, log.bqs, end=", ")
-        print()
+        #for log in self.castleRightsLog:
+            #print(log.wks, log.wqs, log.bks, log.bqs, end=", ")
+        #print()
 
 
 
@@ -353,7 +353,7 @@ class GameState():
 class Move():
     #maps keys to values
     #key : value
-    
+
     ranksToRows = {"1":7, "2":6, "3":5, "4":4,
                    "5":3, "6":2, "7":1, "8":0}
     rowsToRanks = {v: k for k, v in ranksToRows.items()}
@@ -380,7 +380,7 @@ class Move():
 
     def getChessNotation(self):#This can be used to translate to the ARM
         return self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol)
-        
+
     def getRankFile(self, r, c):
         return self.colsToFiles[c] + self.rowsToRanks[r]
 
