@@ -37,6 +37,8 @@ def main():
     validMoves = gs.getValidMoves()  # Don't regenerate this until a valide move is made
     moveMade = False  # flag for when move is made
 
+    animate = False #flag variable for when we should animate a move
+
     print(gs.board)
     loadImages() #only do this once before the while loop :)
     running = True
@@ -99,6 +101,7 @@ def main():
                             moveMade = False
     				#Blacks turn/ AI TURN!!!
                     else:
+<<<<<<< Updated upstream
                         if(wPrint):
                             print("Blacks Turn")
                             wPrint = False
@@ -113,6 +116,48 @@ def main():
                 else:
                     exit()
         drawGameState(screen, gs)
+=======
+                        sqSelected = (row,col)
+                        playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
+                    if len(playerClicks) == 2: #After 2nd click
+                        # Call DavidChessEngine for log and moving
+                        move = DavidChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+                        #if move.isWhite():
+                        for i in range(len(validMoves)):
+                            if move == validMoves[i]:
+                                print(move.getChessNotation())
+                                gs.makeMove(validMoves[i])
+                                moveMade = True
+                                animate = True
+
+                                sqSelected = () #reset user Clicks :)
+                                playerClicks = []
+                            else:
+                                #print("Not your turn!!!! >:(")
+                                sqSelected = ()  # reset user Clicks :)
+                                playerClicks = []
+                       # if not moveMade:
+                       #     playerClicks = [sqSelected]
+				    #Key handlers
+			        #elif e.type == p.KEYDOWN:
+                    #if e.key == p.k_z: #undo when 'z' is pressed
+                        #gs.undoMove()
+                        #moveMade = True
+                    if moveMade:
+                        if animate:
+                            animateMoves(gs.moveLog[-1], screen, gs.board, clock)
+                        validMoves = gs.getValidMoves()
+                        moveMade = False
+                        animate = False
+
+
+
+
+				#Blacks turn/ AI TURN!!!
+                #else:
+                 #   print("Blacks Turn")
+        drawGameState(screen, gs, validMoves, sqSelected)
+>>>>>>> Stashed changes
         clock.tick(MAX_FPS)
         p.display.flip()
 
@@ -120,14 +165,16 @@ def main():
 '''
 Responsible for all graphics in game
 '''
-def drawGameState(screen, gs): #this draws the squares on the board
+def drawGameState(screen, gs, validMoves, sqSelected): #this draws the squares on the board
     drawBoard(screen)
     #add piece highlighting or move suggestions (later?)
     drawPieces(screen, gs.board)#draw pieces on the squares
+    highlightSquares(screen, gs, validMoves, sqSelected)#Could put this after the drawGameState call in the main loop
 '''
 Draw squares on board
 '''
 def drawBoard(screen):
+    global colors
     colors = [p.Color("white"), p.Color("gray")]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
@@ -144,6 +191,56 @@ def drawPieces(screen,board):
             piece = board[r][c]
             if piece != "--": #not empty squares
                 screen.blit( IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE) ) #Puts the piece in for us
+
+
+
+
+
+
+
+'''
+Highlight square selected and moves fro piece selected
+'''
+def highlightSquares(screen, gs, validMoves, sqSelected):
+    if sqSelected != ():
+        r, c = sqSelected
+        if gs.board[r][c][0] == ('w' if gs.whiteToMove else 'b'): #sqSelected is piece that can be moved
+            #highlight selected square
+            s = p.Surface((SQ_SIZE, SQ_SIZE))
+            s.set_alpha(100) #Transperancy value -> 0 transparent; 255 opaque
+            s.fill(p.Color('blue'))
+            screen.blit(s, (c*SQ_SIZE, r*SQ_SIZE))
+			#highlight moves from that square to moves
+            s.fill(p.Color('yellow'))
+            for move in validMoves:
+                if move.startRow == r and move.startCol == c:
+                    screen.blit(s, (move.endCol*SQ_SIZE, move.endRow*SQ_SIZE))
+					#Now lets put this in draw game state
+	
+
+
+def animateMoves(move, screen, board, clock): #Not the best algorithm to do this but hey, it works
+    global colors
+    dR = move.endRow - move.startRow
+    dC = move.endCol - move.startCol
+    framesPerSquare = 10 #frames to move one square
+    frameCount = (abs(dR) + abs(dC)) * framesPerSquare
+    for frame in range(frameCount + 1):
+        r, c = (move.startRow + dR*frame/frameCount, move.startCol + dC*frame/frameCount)
+        drawBoard(screen)
+        drawPieces(screen, board)
+        #erase the piece moved from its ending square
+        color = colors[(move.endRow + move.endCol) % 2]
+        endSquare = p.Rect(move.endCol*SQ_SIZE, move.endRow*SQ_SIZE, SQ_SIZE, SQ_SIZE)
+        p.draw.rect(screen, color, endSquare)
+        if move.pieceCaptured != '--':
+            screen.blit(IMAGES[move.pieceCaptured], endSquare)
+		#draw moving piece
+        screen.blit(IMAGES[move.pieceMoved], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))
+        p.display.flip()
+        clock.tick(60)
+
+
 
 if __name__ == "__main__": #Recommended way by Python
     main()
