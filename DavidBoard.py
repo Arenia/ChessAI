@@ -49,13 +49,13 @@ def main():
 
 
     while running:
-        if( gs.whiteToMove ):
+        if gs.whiteToMove == True:
             for e in p.event.get():
                 if e.type == p.QUIT:
                     running = False
-
+            #Mouse handler
                 elif e.type == p.MOUSEBUTTONDOWN:
-                    if not gameOver:
+                    #if not gameOver:
                         location = p.mouse.get_pos()  # (x,y) location of mouse
                         col = location[0] // SQ_SIZE
                         row = location[1] // SQ_SIZE
@@ -70,7 +70,6 @@ def main():
                         if len(playerClicks) == 2: #After 2nd click
                             # Call DavidChessEngine for log and moving
                             move = DavidChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
-                            #if move.isWhite():
                             for i in range(len(validMoves)):
                                 if move == validMoves[i]:
                                     print(move.getChessNotation())
@@ -83,43 +82,19 @@ def main():
                                     #print("Not your turn!!!! >:(")
                                     sqSelected = ()  # reset user Clicks :)
                                     playerClicks = []
-
-    #All Key handlers while playing white
+            #Key handlers while playing white
                 elif e.type == p.KEYDOWN:
-                    if e.key == p.k_z: #undo when 'z' is pressed
-                        gs.undoMove()
-                        moveMade = True
-                    if e.key == p.k_r: #reset the board when 'r' is pressed
+                    if e.key == p.K_r: #reset the board when 'r' is pressed
                         gs = DavidChessEngine.GameState()
                         validMoves = gs.getValidMoves()
                         sqSelected = ()
                         playerClicks = []
                         moveMade = False
                         animate = False
-
-
-                if gs.checkMate:
-                    gameOver = True
-                    if gs.whiteToMove:
-                        drawText(screen, 'Black wins by checkmate')
-                    else:
-                        drawText(screen, 'White wins by checkmate')
-                elif gs.staleMate:
-                    gameOver = True
-                    drawText(screen, 'Stalemate')
-
-
-
-
-
-            if moveMade:
-                animateMoves(gs.moveLog[-1], screen, gs.board, clock)
-                validMoves = gs.getValidMoves()
-                moveMade = False
-
-
-
-
+                if moveMade:
+                    animateMoves(gs.moveLog[-1], screen, gs.board, clock)
+                    validMoves = gs.getValidMoves()
+                    moveMade = False
 
 
 
@@ -130,17 +105,16 @@ def main():
                 if e.type == p.QUIT:
                     running = False
 
-                if not gs.checkMate:
+                if not gs.checkMate and not gs.whiteToMove:
                     movelist = gs.getValidMoves()
                     random.shuffle(movelist)
                     gs.makeMove(movelist[0])
                     moveMade = True
-
-
-
-
-
-
+                #This is needed so that the AI doesn't choose how white moves at all
+                if moveMade:
+                    animateMoves(gs.moveLog[-1], screen, gs.board, clock)
+                    validMoves = gs.getValidMoves()
+                    moveMade = False
 
 
 
@@ -150,15 +124,12 @@ def main():
 
         drawGameState(screen, gs, validMoves, sqSelected)
         if gs.checkMate:
-            drawGameState(screen, gs, validMoves, sqSelected)
-
             gameOver = True
             if gs.whiteToMove:
                 drawText(screen, 'Black wins by checkmate')
             else:
                 drawText(screen, 'White wins by checkmate')
         elif gs.staleMate:
-            drawGameState(screen, gs, validMoves, sqSelected)
             gameOver = True
             drawText(screen, 'Stalemate')
         clock.tick(MAX_FPS)
