@@ -45,15 +45,17 @@ def main():
     sqSelected = () #no square selected initially, keep track of last click of user (tuple: (row,col))
     playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4,4)]
 
+    gameOver = False
+
 
     while running:
-        if( not gs.staleMate and not gs.checkMate ):
-            if( (gs.whiteToMove == True) and (not gs.staleMate and not gs.checkMate) ):
-                for e in p.event.get():
-                    if e.type == p.QUIT:
-                        running = False
+        if( gs.whiteToMove ):
+            for e in p.event.get():
+                if e.type == p.QUIT:
+                    running = False
 
-                    elif e.type == p.MOUSEBUTTONDOWN:
+                elif e.type == p.MOUSEBUTTONDOWN:
+                    if not gameOver:
                         location = p.mouse.get_pos()  # (x,y) location of mouse
                         col = location[0] // SQ_SIZE
                         row = location[1] // SQ_SIZE
@@ -82,23 +84,89 @@ def main():
                                     sqSelected = ()  # reset user Clicks :)
                                     playerClicks = []
 
-    			    #Key handlers
-    			    #elif e.type == p.KEYDOWN:
-                    #if e.key == p.k_z: #undo when 'z' is pressed
-                        #gs.undoMove()
-                        #moveMade = True
-                if moveMade:
-                    validMoves = gs.getValidMoves()
-                    moveMade = False
+    #All Key handlers while playing white
+                elif e.type == p.KEYDOWN:
+                    if e.key == p.k_z: #undo when 'z' is pressed
+                        gs.undoMove()
+                        moveMade = True
+                    if e.key == p.k_r: #reset the board when 'r' is pressed
+                        gs = DavidChessEngine.GameState()
+                        validMoves = gs.getValidMoves()
+                        sqSelected = ()
+                        playerClicks = []
+                        moveMade = False
+                        animate = False
+
+
+                if gs.checkMate:
+                    gameOver = True
+                    if gs.whiteToMove:
+                        drawText(screen, 'Black wins by checkmate')
+                    else:
+                        drawText(screen, 'White wins by checkmate')
+                elif gs.staleMate:
+                    gameOver = True
+                    drawText(screen, 'Stalemate')
+
+
+
+
+
+            if moveMade:
+                animateMoves(gs.moveLog[-1], screen, gs.board, clock)
+                validMoves = gs.getValidMoves()
+                moveMade = False
+
+
+
+
+
+
+
+
 #Blacks turn/ AI TURN!!!
-            else:
-                movelist = gs.getValidMoves()
-                random.shuffle(movelist)
-                gs.makeMove(movelist[0])
-                moveMade = True
+        else:
+            for e in p.event.get():
+                if e.type == p.QUIT:
+                    running = False
+
+                if not gs.checkMate:
+                    movelist = gs.getValidMoves()
+                    random.shuffle(movelist)
+                    gs.makeMove(movelist[0])
+                    moveMade = True
+
+
+
+
+
+
+
+
+
+
+
+
+
         drawGameState(screen, gs, validMoves, sqSelected)
+        if gs.checkMate:
+            drawGameState(screen, gs, validMoves, sqSelected)
+
+            gameOver = True
+            if gs.whiteToMove:
+                drawText(screen, 'Black wins by checkmate')
+            else:
+                drawText(screen, 'White wins by checkmate')
+        elif gs.staleMate:
+            drawGameState(screen, gs, validMoves, sqSelected)
+            gameOver = True
+            drawText(screen, 'Stalemate')
         clock.tick(MAX_FPS)
         p.display.flip()
+
+
+
+
 
 
 '''
@@ -176,6 +244,14 @@ def animateMoves(move, screen, board, clock): #Not the best algorithm to do this
         p.display.flip()
         clock.tick(60)
 
+
+def drawText(screen, text):
+    font = p.font.SysFont("Helvitca", 32, True, False)
+    textObject = font.render(text, 0, p.Color('Black'))
+    textLocation = p.Rect(0, 0, WIDTH, HEIGHT).move(WIDTH/2 - textObject.get_width()/2, HEIGHT/2 - textObject.get_height()/2)
+    screen.blit(textObject, textLocation)
+    textObject = font.render(text, 0, p.Color("Green"))
+    screen.blit(textObject, textLocation.move(2,2))
 
 
 if __name__ == "__main__": #Recommended way by Python
