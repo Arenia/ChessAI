@@ -45,30 +45,25 @@ def main():
     sqSelected = () #no square selected initially, keep track of last click of user (tuple: (row,col))
     playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4,4)]
 
-    wPrint = True
 
     while running:
-        #if player1 or player2
-        for e in p.event.get():
-            if e.type == p.QUIT:
-                running = False
+        if( not gs.staleMate and not gs.checkMate ):
+            if( (gs.whiteToMove == True) and (not gs.staleMate and not gs.checkMate) ):
+                for e in p.event.get():
+                    if e.type == p.QUIT:
+                        running = False
 
-            elif e.type == p.MOUSEBUTTONDOWN:
-                location = p.mouse.get_pos() #(x,y) location of mouse
-                col = location[0]//SQ_SIZE
-                row = location[1]//SQ_SIZE
+                    elif e.type == p.MOUSEBUTTONDOWN:
+                        location = p.mouse.get_pos()  # (x,y) location of mouse
+                        col = location[0] // SQ_SIZE
+                        row = location[1] // SQ_SIZE
 
-                if(not gs.staleMate and not gs.checkMate):
-                    if(gs.whiteToMove == True):
-                        if(wPrint):
-                            print("White turn")
-                            wPrint = False
                         if sqSelected == (row,col): #User clicked the same square twice
                             print("Cancelling selection")
                             sqSelected = () #deselect :)
                             playerClicks = [] #clear player clicks
                         else:
-                            sqSelected = (row,col)
+                            sqSelected = (row, col)
                             playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
                         if len(playerClicks) == 2: #After 2nd click
                             # Call DavidChessEngine for log and moving
@@ -86,69 +81,21 @@ def main():
                                     #print("Not your turn!!!! >:(")
                                     sqSelected = ()  # reset user Clicks :)
                                     playerClicks = []
-                           # if not moveMade:
-                           #     playerClicks = [sqSelected]
-    				    #Key handlers
-    			        #elif e.type == p.KEYDOWN:
-                        #if e.key == p.k_z: #undo when 'z' is pressed
-                            #gs.undoMove()
-                            #moveMade = True
-                        if moveMade:
-                            validMoves = gs.getValidMoves()
-                            moveMade = False
-    				#Blacks turn/ AI TURN!!!
-                    else:
-# Updated upstream
-                        if(wPrint):
-                            print("Blacks Turn")
-                            wPrint = False
-                        movelist = gs.getValidMoves()
-                        random.shuffle(movelist)
-                        gs.makeMove(movelist[0])
-                        moveMade = True
 
-                    if moveMade:
-                        validMoves = gs.getValidMoves()
-                        moveMade = False
-                else:
-                    exit()
-                        #drawGameState(screen, gs)
-
-                    sqSelected = (row,col)
-                    playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
-                    if len(playerClicks) == 2: #After 2nd click
-                        # Call DavidChessEngine for log and moving
-                        move = DavidChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
-                        #if move.isWhite():
-                        for i in range(len(validMoves)):
-                            if move == validMoves[i]:
-                                print(move.getChessNotation())
-                                gs.makeMove(validMoves[i])
-                                moveMade = True
-                                animate = True
-
-                                sqSelected = () #reset user Clicks :)
-                                playerClicks = []
-                            else:
-                                #print("Not your turn!!!! >:(")
-                                sqSelected = ()  # reset user Clicks :)
-                                playerClicks = []
-                       # if not moveMade:
-                       #     playerClicks = [sqSelected]
-				    #Key handlers
-			        #elif e.type == p.KEYDOWN:
+    			    #Key handlers
+    			    #elif e.type == p.KEYDOWN:
                     #if e.key == p.k_z: #undo when 'z' is pressed
                         #gs.undoMove()
                         #moveMade = True
-                    if moveMade:
-                        if animate:
-                            animateMoves(gs.moveLog[-1], screen, gs.board, clock)
-                        validMoves = gs.getValidMoves()
-                        moveMade = False
-                        animate = False
-				#Blacks turn/ AI TURN!!!
-                #else:
-                 #   print("Blacks Turn")
+                if moveMade:
+                    validMoves = gs.getValidMoves()
+                    moveMade = False
+#Blacks turn/ AI TURN!!!
+            else:
+                movelist = gs.getValidMoves()
+                random.shuffle(movelist)
+                gs.makeMove(movelist[0])
+                moveMade = True
         drawGameState(screen, gs, validMoves, sqSelected)
         clock.tick(MAX_FPS)
         p.display.flip()
