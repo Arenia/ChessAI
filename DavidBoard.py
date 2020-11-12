@@ -93,15 +93,12 @@ def main():
                         #if e.key == p.k_z: #undo when 'z' is pressed
                             #gs.undoMove()
                             #moveMade = True
-
-
-
                         if moveMade:
                             validMoves = gs.getValidMoves()
                             moveMade = False
     				#Blacks turn/ AI TURN!!!
                     else:
-<<<<<<< Updated upstream
+# Updated upstream
                         if(wPrint):
                             print("Blacks Turn")
                             wPrint = False
@@ -115,10 +112,10 @@ def main():
                         moveMade = False
                 else:
                     exit()
-        drawGameState(screen, gs)
-=======
-                        sqSelected = (row,col)
-                        playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
+                        #drawGameState(screen, gs)
+
+                    sqSelected = (row,col)
+                    playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
                     if len(playerClicks) == 2: #After 2nd click
                         # Call DavidChessEngine for log and moving
                         move = DavidChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
@@ -149,15 +146,10 @@ def main():
                         validMoves = gs.getValidMoves()
                         moveMade = False
                         animate = False
-
-
-
-
 				#Blacks turn/ AI TURN!!!
                 #else:
                  #   print("Blacks Turn")
         drawGameState(screen, gs, validMoves, sqSelected)
->>>>>>> Stashed changes
         clock.tick(MAX_FPS)
         p.display.flip()
 
@@ -191,9 +183,6 @@ def drawPieces(screen,board):
             piece = board[r][c]
             if piece != "--": #not empty squares
                 screen.blit( IMAGES[piece], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE) ) #Puts the piece in for us
-
-
-
 
 
 
