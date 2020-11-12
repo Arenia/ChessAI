@@ -99,6 +99,9 @@ def main():
 
 
 
+
+
+
 #Blacks turn/ AI TURN!!!
         else:
             for e in p.event.get():
@@ -115,6 +118,15 @@ def main():
                     animateMoves(gs.moveLog[-1], screen, gs.board, clock)
                     validMoves = gs.getValidMoves()
                     moveMade = False
+
+                elif e.type == p.KEYDOWN:
+                    if e.key == p.K_r:  # reset the board when 'r' is pressed
+                        gs = DavidChessEngine.GameState()
+                        validMoves = gs.getValidMoves()
+                        sqSelected = ()
+                        playerClicks = []
+                        moveMade = False
+                        animate = False
 
 
 
