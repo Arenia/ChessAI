@@ -30,9 +30,9 @@ class GameState():
                               'B': self.getBishopMoves, 'Q': self.getQueenMoves, 'K': self.getKingMoves}
 
         #value of piece; this could be used for making the AI Tyler
-        #Tyler note: King value set to 99, high value incentivizes checking it
+        #Tyler note: King value changed to 4, too high value incentivizes checking it over defensive goals
         #Empty piece set to 0 as a safety net for scoring function
-        self.valOfPiece = {'p': 1, 'R': 5, 'N': 3, 'B': 3, 'Q': 9, 'K': 99, "-": 0}
+        self.valOfPiece = {'p': 1, 'R': 5, 'N': 3, 'B': 3, 'Q': 9, 'K': 4, "-": 0}
 
         self.whiteToMove = True
         self.moveLog = []

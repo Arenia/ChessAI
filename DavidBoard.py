@@ -19,28 +19,30 @@ IMAGES = {}
     Collection of scoring methods for the COM player.
 '''
 def scoreMove(moveToScore, stateofGame):
-    #print(f"Scoring move {moveToScore.getChessNotation()}")
-    #Score is two times the piece taken, plus pieces at risk of oppnenet, minus 1.5 times pieces at risk of user
-    score = (stateofGame.valOfPiece[moveToScore.pieceCaptured[1]]) *2
+    #Score is two times the piece taken, plus highest piece at risk of oppnenet, minus 1.5 times highest piece at risk
+    capture = (stateofGame.valOfPiece[moveToScore.pieceCaptured[1]]) *2
     #print(f"Adding {score} for piece taken")
     #Make move and check the incheck state of player's pieces
     stateofGame.makeMove(moveToScore)
+    highrisk = 0
     for r in range(len(stateofGame.board)): #range of 2d arrayList length of board ; num of rows
         for c in range(len(stateofGame.board[r])):  #Number of cols in given row
             #White pieces under attack boosts score
             if(stateofGame.board[r][c][0] == 'w'):
                 if(stateofGame.squareUnderAttack(r, c)):
-                    #print(f"Ading {stateofGame.valOfPiece[stateofGame.board[r][c][1]]} for square ({r}, {c}) Being under attack")
-                    score = score + (stateofGame.valOfPiece[stateofGame.board[r][c][1]])
+                    if(stateofGame.valOfPiece[stateofGame.board[r][c][1]] > highrisk):
+                        highrisk = stateofGame.valOfPiece[stateofGame.board[r][c][1]]
     #Redo board check with turns flipped for squareUnderAttack to work right
     stateofGame.whiteToMove = not stateofGame.whiteToMove
+    lowrisk = 0
     for r in range(len(stateofGame.board)): #range of 2d arrayList length of board ; num of rows
         for c in range(len(stateofGame.board[r])):  #Number of cols in given row
             #Black pieces lower score
             if(stateofGame.board[r][c][0] == 'b'):
                 if(stateofGame.squareUnderAttack(r, c)):
-                    #print(f"Subtracting {stateofGame.valOfPiece[stateofGame.board[r][c][1]]} for square ({r}, {c}) Being under attack")
-                    score = score - ((stateofGame.valOfPiece[stateofGame.board[r][c][1]]) * 1.5)
+                    if(stateofGame.valOfPiece[stateofGame.board[r][c][1]] > lowrisk):
+                        lowrisk = stateofGame.valOfPiece[stateofGame.board[r][c][1]]
+    score = capture + highrisk - (lowrisk*1.5)
     return score
 
 
